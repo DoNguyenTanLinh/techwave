@@ -15,6 +15,12 @@ connection.connect((error) => {
         // Điều gì đó ở đây...
     }
 });
-
+// connection.query(
+//     'SELECT * FROM account',
+//     function(err, results, fields) {
+//       console.log(results); // results contains rows returned by server
+//       console.log(fields); // fields contains extra meta data about results, if available
+//     }
+//   );
 
 module.exports = connection;
