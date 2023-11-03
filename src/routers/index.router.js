@@ -1,19 +1,21 @@
-const accountRouter = require('./acount.router');
+const accountRouter = require('./account.router');
+const userRouter = require('./user.router');
+const staffRouter = require('./staff.router');
+const adminRouter = require('./admin.router');
+const addressRouter = require('./address.router');
+const homeRouter = require('./home.router');
+const apiController = require('../controller/api.controller');
+var { checkUserJWT, checkUserPermission, checkUserAction } = require('../middleware/JWTAction');
 
-const { handleLogin } = require('../controller/login_controller');
-
-const checkLogin = (req, res, next) => {
-    const nonSecure = ['/login'];
-    if (nonSecure.includes(req.path)) return next();
-
-
-    next();
-}
 
 function router(app) {
-    app.use('/account', accountRouter);
-    app.get('/login', function (req, res) {
-        handleLogin(req, res);
-    });
+    app.all('*', checkUserJWT, checkUserPermission, checkUserAction);
+    app.get('/login', apiController.handleLogin);
+    app.get('/logout', apiController.handleLogout);
+    app.post('/register', apiController.handleRegister);
+    app.use('/admin', adminRouter);
+    app.use('/staff', staffRouter);
+    app.use('/user', userRouter);
+    app.use('/', homeRouter);
 }
 module.exports = router;

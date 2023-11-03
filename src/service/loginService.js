@@ -8,17 +8,17 @@ const checkLogin = async function (req) {
     });
 
     if (data) {
-
         let groupWithRole = await jwtService.getGroupWithRoles(data.email)
         let payload = {
+            id: data.account_id,
             email: data.email,
+            username: data.username,
             groupWithRole
         }
-
-        let token = await createJWT(payload)
-        return { access_token: token, groupWithRole }
+        let token = await createJWT(payload);
+        return ({ account_id: data.account_id, username: data.username, access_token: token, groupWithRole });
     } else {
-        return ({ success: false, message: "Invalid email or password" });
+        return (null);
     }
 }
 

@@ -4,3 +4,6 @@ exports.toResponse = function (data, account) {
 exports.toResponseSimple = function (data, accountResponse) {
     return new accountResponse(data, accountResponse);
 }
+exports.toResquestSimple = function (data, accountResquest) {
+    return new accountResquest(data, accountResquest);
+}

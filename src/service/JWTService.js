@@ -7,7 +7,7 @@ const getGroupWithRoles = (email) => {
                 return resolve(Account.getPermission(id));
             })
             .catch(error => {
-                throw error;
+                reject(error);
             });
     })
 };
