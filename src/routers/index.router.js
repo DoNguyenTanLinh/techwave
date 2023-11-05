@@ -10,12 +10,17 @@ var { checkUserJWT, checkUserPermission, checkUserAction } = require('../middlew
 
 function router(app) {
     app.all('*', checkUserJWT, checkUserPermission, checkUserAction);
-    app.get('/login', apiController.handleLogin);
-    app.get('/logout', apiController.handleLogout);
+    app.post('/login', apiController.handleLogin);
+    app.post('/logout', apiController.handleLogout);
     app.post('/register', apiController.handleRegister);
     app.use('/admin', adminRouter);
     app.use('/staff', staffRouter);
     app.use('/user', userRouter);
-    app.use('/', homeRouter);
+    app.use('/', checkUserJWT, (req, res, next) => {
+        if (!req.user) {
+            req.user = {};
+            req.user.id = null;
+        }; next()
+    }, homeRouter);
 }
 module.exports = router;

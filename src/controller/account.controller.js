@@ -54,7 +54,7 @@ class AccountController {
 
         setAddress(req)
         accResponse.data.address = req.body.address;
-        return accResponse;
+        res.json(accResponse);
 
     }
     update_account = async (req, res) => {

@@ -1,6 +1,6 @@
 require('dotenv').config();
 const jwt = require("jsonwebtoken");
-const nonSecure = ['/logout', '/login', '/register', '/introduce'];
+const nonSecure = ['/logout', '/login', '/register', '/introduce', '/product', '/category'];
 const createJWT = function (payload) {
     return new Promise(function (resolve, reject) {
 
@@ -30,8 +30,6 @@ const verifyToken = (token) => {
 }
 const checkUserJWT = async (req, res, next) => {
     req.api = `/${req.path.split('/')[1]}`
-
-    if (nonSecure.includes(req.api)) return next();
     let cookie = req.cookies;
     if (cookie && cookie.jwt) {
         let token = cookie.jwt;
@@ -46,6 +44,7 @@ const checkUserJWT = async (req, res, next) => {
             })
         }
     } else {
+        if (nonSecure.includes(req.api)) return next();
         return res.status(401).json({
             message: "Not authenticated the user"
         })
@@ -104,11 +103,20 @@ const checkUserAction = (req, res, next) => {
             view: (currentUrl == 'detail' && roles.Account != process.env.ACCESS_DENIED),
             view_all: ((currentUrl === '' && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
         }
+        console.log(currentUrl)
+
+        let category = {
+            create: (currentUrl === 'create' && (roles.Category == process.env.FULL_ACCESS || roles.Category == process.env.CREATE)),
+            modify: (currentUrl === 'edit' && (roles.Category == process.env.FULL_ACCESS || roles.Category == process.env.MODIFY)),
+            remove: (currentUrl === 'remove' && roles.Category == process.env.FULL_ACCESS),
+            view: ((currentUrl === '' || currentUrl == 'detail') && roles.Category != process.env.ACCESS_DENIED)
+        }
+
         let productAccount = {
             create: (currentUrl === 'create' && (roles.Product == process.env.FULL_ACCESS || roles.Product == process.env.CREATE)),
             modify: (currentUrl === 'edit' && (roles.Product == process.env.FULL_ACCESS || roles.Product == process.env.MODIFY)),
             remove: (currentUrl === 'remove' && roles.Product == process.env.FULL_ACCESS),
-            view: ((currentUrl === '' || currentUrl == 'detail') && roles.Product != process.env.ACCESS_DENIED)
+            view: ((currentUrl !== 'create' && currentUrl !== 'edit' && currentUrl !== 'remove') && roles.Product != process.env.ACCESS_DENIED)
         }
         if (oldUrl === 'account') {
             if (acctionAccount.create || acctionAccount.modify || acctionAccount.delete_soft || acctionAccount.remove || acctionAccount.view || acctionAccount.view_all || acctionAccount.active) {
@@ -122,6 +130,16 @@ const checkUserAction = (req, res, next) => {
             }
         }
         else if (oldUrl === 'introduce') next();
+        else if (oldUrl === 'permission') next();
+        else if (oldUrl === 'category') {
+            if (category.create || category.modify || category.remove || category.view) next();
+            else {
+                return res.status(403).json({
+                    message: "You dont have permission to access this resource...",
+                    data: null
+                })
+            }
+        }
         else if (oldUrl === 'product') {
             if (productAccount.create || productAccount.modify || productAccount.remove || productAccount.view) {
                 next();

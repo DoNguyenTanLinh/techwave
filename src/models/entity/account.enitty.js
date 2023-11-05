@@ -72,7 +72,7 @@ Account.getById = function (id, result) {
 
 Account.findOne = function (email, password, result) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM account Where email='${email}' and password='${[password]}' and status=1`, function (err, result) {
+        db.query(`SELECT * FROM account Where email='${email}' and password='${[password]}'`, function (err, result) {
             if (err) {
                 reject(err);
             } else {
@@ -96,7 +96,11 @@ Account.create = function (data) {
         })
     });
 }
-Account.update = function (id, data, result) {
+Account.update = async function (id, data, result) {
+    let account = await Account.getById(id, function (accesst) {
+        return accesst;
+    });
+    console.log(account);
     const now = new Date();
     data.modifiedAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
     db.query(`UPDATE account SET ? Where account_id=${id}`, data, function (err) {

@@ -1,9 +1,9 @@
 const express = require('express');
 const admin = express.Router();
 const accountRouter = require('./account.router')
-const introduceController = require('../controller/introduce.controller');
-
+const introduceRouter = require('./introduce.router');
+const permissionRouter = require('./permission.router');
 admin.use('/account', accountRouter);
-admin.put('/introduce/edit', introduceController.update_introduce);
-admin.put('/introduce/clear', introduceController.clear_introduce);
+admin.use('/introduce', introduceRouter);
+admin.use('/permission', permissionRouter);
 module.exports = admin;

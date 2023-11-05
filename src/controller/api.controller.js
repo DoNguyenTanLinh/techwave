@@ -4,18 +4,24 @@ class ApiController {
     handleLogin = async (req, res) => {
         try {
             let data = await loginService.checkLogin(req.body);
-            if (data) {
+            if (data && data.status == 1) {
                 res.cookie("jwt", data.access_token, { httpOnly: true, maxAge: 60 * 60 * 1000 });
                 return res.status(200).json({
                     success: true,
                     message: "Login successful",
                     data
                 });
-            } else {
+            }
+            else if (data && data.status == 0) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Tài khoản đã bị vô hiệu hóa",
+                });
+            }
+            else {
                 return res.status(401).json({
                     success: false,
                     message: "Invalid email or password",
-                    data
                 });
             }
         }
