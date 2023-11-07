@@ -22,7 +22,7 @@ Address.getAddress = function (id) {
 };
 Address.getAllAddress = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT add_id,diachi,status FROM address where id_account=${id}`, function (err, result) {
+        db.query(`SELECT * FROM address where id_account=${id}`, function (err, result) {
             if (err) {
                 reject(err);
             } else {

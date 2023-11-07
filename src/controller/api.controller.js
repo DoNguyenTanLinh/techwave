@@ -1,5 +1,9 @@
+require('dotenv').config();
 var loginService = require('../service/loginService');
+const crypto = require('crypto');
 const accountController = require('./account.controller');
+const Account = require('../models/entity/account.enitty');
+const { transporter } = require('../service/SendMail')
 class ApiController {
     handleLogin = async (req, res) => {
         try {
@@ -45,16 +49,67 @@ class ApiController {
     }
     handleRegister = async (req, res) => {
         try {
+            req.body.id_permission = 3;
             let data = await accountController.create_account(req, res);
-            return res.status(200).json({
-                message: "Sigin successful",
-                data
-            })
+            return data;
 
         } catch (err) {
-            console.log(error);
+            console.log(err);
+            return res.status(500).json({
+                message: "err from server"
+            });
+        }
+    }
+    handleRegisterStaff = async (req, res) => {
+        try {
+            req.body.status = '0';
+            req.body.id_permission = 2;
+            let data = await accountController.create_account(req, res);
+            return data
+
+        } catch (err) {
+            console.log(err);
             return res.status(500).json({
                 message: "err from server",
+                err
+            });
+        }
+    }
+    handleForgotPassword = async (req, res) => {
+        try {
+            let email = await Account.findByEmail(req.body.email);
+            if (email) {
+                let password = crypto.randomBytes(8).toString('base64');
+                await Account.setpassword(password, email.email);
+                email.password = password;
+                const mailSend = {
+                    from: process.env.EMAIL_ADDRESS,
+                    to: email.email,
+                    subject: "Thông báo đổi mật khẩu thành công",
+                    text: `Chào ${email.username},
+                        \nChúng tôi đã nhận được thông báo đổi mật khẩu từ bạn. Dưới đây là mật khẩu mới của bạn:
+                        Mật khẩu: ${password}
+                        \nVui lòng không chia sẻ mật khẩu với bất kỳ ai
+                        \nNếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ gì, xin đừng ngần ngại liên hệ với chúng tôi tại fa.java14.group3@gmail.com .
+                        Chúng tôi rất mong được phục vụ bạn và chúc bạn có trải nghiệm tuyệt vời với TECHWAVE.
+                        \nXin chân thành cảm ơn đã lựa chọn chúng tôi.Trân trọng,
+                        Administrator of TECHWAVE`,
+                }
+                const info = await transporter.sendMail(mailSend);
+                console.log("Message sent: %s", info.messageId);
+                return res.status(200).json({ message: "Đổi mật khẩu thành công, xin hãy kiểm tra email", data: email });
+            }
+            else {
+                return res.status(500).json({
+                    message: "Email không tồn tại",
+                    data: null
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                message: "err from server",
+                err
             });
         }
     }

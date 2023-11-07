@@ -1,76 +1,73 @@
 const Account = require('../models/entity/account.enitty');
 const Address = require('../models/entity/address.entity');
-const accountMapper = require('../models/mapper/account.mapper');
-const accountResponse = require('../models/response/account.response');
-const accountResquest = require('../models/resquest/account.request');
+const { ModifyAccountResquest } = require('../models/resquest/account.request');
 const { setAddress } = require('../middleware/address.Action')
+const { deleteAllfav } = require('../middleware/favProduct.Action')
 class AccountController {
     get_All = function (req, res) {
         Account.getAllAccounts(function (data) {
-            // res.json(accountMapper.toResponse(data, Account));\
-            const accountPromises = data.map(accountData => {
-                const myAccount = new Account(accountData, Account);
-                const promises = [myAccount.init(), myAccount.permission()];
-                return Promise.all(promises).then(() => myAccount);
-            });
-            Promise.all(accountPromises)
-                .then(accounts => {
-                    res.json(accounts);
-                })
-                .catch(error => {
-                    console.error(error);
-                    res.status(500).send("Error fetching account data");
-                });
-
+            res.json(data);
         })
     }
-    get_Detail = function (req, res) {
-        Account.getById(req.user.id, async function (data) {
-            const myAccount = accountMapper.toResponseSimple(data, accountResponse.AccountResponseAll);
-            await myAccount.init()
-                .then(() => {
-                    res.json(myAccount);
-                })
-                .catch(error => {
-                    console.error(error);
-                    res.status(500).send("Error fetching account data");
-                });
-
-        })
+    get_Detail = async function (req, res) {
+        try {
+            let data = await Account.getById(req.user.id)
+            res.json(data);
+        } catch (err) {
+            res.json({ message: "Error", err })
+        }
     }
-    get_DetailOthAccount = function (req, res) {
-        Account.getOthById(req.params.id, function (data) {
-            res.send(accountMapper.toResponseSimple(data, accountResponse.AccountResponse));
-        })
+    get_OthDetails = async function (req, res) {
+        try {
+            let data = await Account.getById(req.params.id)
+            res.json(data);
+        } catch (err) {
+            res.json({ message: "Error", err })
+        }
     }
     create_account = async function (req, res) {
-        var data = accountMapper.toResquestSimple(req.body, accountResquest);
-        let accResponse = null;
-        await Account.create(data)
-            .then((account) => {
-                req.id = account.data.id;
-                accResponse = account;
+        if (!req.body.status) req.body.status = '1';
+        let email = await Account.findByEmail(req.body.email);
+        if (email) {
+            return res.status(200).json({
+                message: "Email đã tồn tại",
+                data: null
             })
+        }
+        else {
+            Account.create(req.body, (data) => res.json(data))
 
-        setAddress(req)
-        accResponse.data.address = req.body.address;
-        res.json(accResponse);
+        }
 
     }
     update_account = async (req, res) => {
-        var data = accountMapper.toResquestSimple(req.body, accountResquest);
-        let address = null;
-        await Address.update(req.body.address.add_id, { ...req.body.address })
-            .then((result) => {
-                address = result.diachi;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-        Account.update(req.user.id, data, function (result) {
-            result.address = address;
-            res.json({ message: result });
-        });
+        if (!req.params.id) {
+            try {
+                let oldAccount = await Account.getById(req.user.id);
+                ModifyAccountResquest(oldAccount, req.body);
+                Account.update(req.user.id, oldAccount, function (result) {
+                    res.json({ message: result });
+                })
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        else {
+            try {
+                let oldAccount = await Account.getById(req.params.id);
+                if (oldAccount) {
+                    ModifyAccountResquest(oldAccount, req.body);
+                    Account.update(req.params.id, oldAccount, function (result) {
+                        res.json({ message: result });
+                    })
+                }
+                else {
+                    res.json({ message: "Không thấy tài khoản" })
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }
     }
     soft_delete = (req, res) => {
         var id = req.params.id;
@@ -78,8 +75,9 @@ class AccountController {
             res.json({ message: result });
         })
     }
-    remove_account = (req, res) => {
+    remove_account = async (req, res) => {
         var id = req.params.id;
+        await deleteAllfav(req.params.id)
         Account.remove(id, function (result) {
             res.json({ message: result });
         })

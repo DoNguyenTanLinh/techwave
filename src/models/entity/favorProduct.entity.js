@@ -1,4 +1,5 @@
-const db = require('../../connection/connect')
+const db = require('../../connection/connect');
+
 const FavorProduct = function (fav) {
     this.fav_product_id = fav.fav_product_id;
     this.product_id = fav.product_id;
@@ -30,6 +31,17 @@ FavorProduct.delete = (data, result) => {
         })
     } catch (err) {
         result({ message: "Error SERVER", error: err })
+    }
+}
+FavorProduct.find_userFavProduct = (id, result) => {
+    try {
+        db.query(`SELECT * FROM favorite_product WHERE account_id=${id}`, (err, kq) => {
+            if (err) result(null)
+            else if (kq.length < 1) result(null)
+            else result(kq)
+        })
+    } catch (err) {
+        result(null)
     }
 }
 module.exports = FavorProduct;

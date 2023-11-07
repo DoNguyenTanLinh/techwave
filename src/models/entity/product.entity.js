@@ -34,6 +34,15 @@ Product.getAll = function (result) {
         else result(data)
     })
 }
+Product.getOne = function (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * From product WHERE product_id=${id}`, (err, data) => {
+            if (err || data.length == 0) resolve(null)
+            else resolve(data[0])
+        })
+    })
+}
+
 Product.getDetails = function (id, result) {
     try {
         db.query(`SELECT * From product WHERE product_id=${id}`, (err, data) => {

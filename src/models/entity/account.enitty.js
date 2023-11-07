@@ -6,30 +6,16 @@ const Account = function (acount) {
     this.fullname = acount.fullname;
     this.email = acount.email;
     this.phone = acount.phone;
-    this.address = null;
+    this.address = this.address;
     this.dob = acount.dob;
     this.gender = acount.gender;
     this.username = acount.username;
     this.password = acount.password;
-    this.permission = null;
+    this.permission = this.permission;
     this.avatar = acount.avatar;
     this.status = acount.status;
     this.creatAt = acount.creatAt;
     this.modifiedAt = acount.modifiedAt;
-    this.init = async function () {
-        try {
-            this.address = await Address.getAddress(acount.account_id);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    this.permission = async () => {
-        try {
-            this.permission = await Account.getPermission(acount.account_id);
-        } catch (error) {
-            console.error(error);
-        }
-    }
 }
 Account.getPermission = (id) => {
     return new Promise((resolve, reject) => {
@@ -55,21 +41,30 @@ Account.getAllAccounts = function (result) {
     });
 
 }
-Account.getOthById = function (id, result) {
-    db.query(`SELECT * FROM account as a
-    inner join address as b on a.account_id=b.id_account
-    where a.account_id=${id} and b.status='1'`, function (err, account) {
-        if (err || account.length == 0) throw result(null);
-        else result(account[0]);
-    });
+Account.findByEmail = function (email, result) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM account Where email='${email}'`, function (err, account) {
+            if (err) reject(err);
+            else if (account.length == 0) resolve(null);
+            else resolve(account[0])
+        })
+    })
 }
 Account.getById = function (id, result) {
-    db.query(`SELECT * FROM account where account_id=${id}`, function (err, account) {
-        if (err || account.length == 0) throw result(null);
-        else result(account[0]);
-    });
-}
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM account where account_id=${id}`, function (err, account) {
+            if (err || account.length == 0) resolve(null);
+            else resolve(account[0]);
+        });
+    })
 
+}
+Account.setpassword = function (password, email) {
+    db.query(`UPDATE account SET password='${password}' Where email='${email}'`, (err, account) => {
+        if (err) console.log(err);
+        else console.log("Set password successfully")
+    })
+}
 Account.findOne = function (email, password, result) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM account Where email='${email}' and password='${[password]}'`, function (err, result) {
@@ -84,28 +79,24 @@ Account.findOne = function (email, password, result) {
             }
         });
     });
-
 }
-Account.create = function (data) {
+Account.create = function (data, result) {
     const now = new Date();
     data.createAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
-    return new Promise((resolve, reject) => {
-        db.query('INSERT INTO account SET ?', data, function (err, account) {
-            if (err) throw reject(err);
-            else resolve({ message: "Tạo tài khoản thành công", data: { id: account.insertId, ...data } });
-        })
-    });
+    db.query('INSERT INTO account SET ?', data, function (err, account) {
+        if (err) throw reject(err);
+        else {
+            if (data.status == '1') result({ message: "Tạo tài khoản thành công", data: { id: account.insertId, ...data } });
+            else result({ message: "Tạo thành công, đang đợi phê duyệt", data: { id: account.insertId, ...data } });
+        }
+    })
 }
-Account.update = async function (id, data, result) {
-    let account = await Account.getById(id, function (accesst) {
-        return accesst;
-    });
-    console.log(account);
+Account.update = function (id, data, result) {
     const now = new Date();
     data.modifiedAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
     db.query(`UPDATE account SET ? Where account_id=${id}`, data, function (err) {
         if (err) throw result(err);
-        else result({ id: id, ...data });
+        else result({ ...data });
     });
 }
 Account.softdelete = function (id, result) {

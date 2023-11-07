@@ -1,6 +1,7 @@
 const Product = require("../models/entity/product.entity");
 const { setDetail, getDetail, deleteDetail } = require('../middleware/detailProduct.Action')
-const { deleteAllOption } = require('../middleware/product.Action')
+const { deleteAllOption, setAllPost, setAllCart } = require('../middleware/product.Action')
+const { setDeleteProduct } = require('../middleware/favProduct.Action')
 class ProductController {
     getAll_product = function (req, res) {
         Product.getAll((data) => {
@@ -54,9 +55,13 @@ class ProductController {
         })
     }
     delete_product = function (req, res) {
-        deleteDetail(req.params.id);
-        deleteAllOption(req.params.id);
-        Product.delete(req.params.id, (data) => {
+        let id = req.params.id;
+        deleteDetail(id);
+        deleteAllOption(id);
+        setAllPost(id);
+        setDeleteProduct(id);
+        setAllCart(id);
+        Product.delete(id, (data) => {
             res.json(data);
         })
     }

@@ -12,6 +12,16 @@ Option.getAll = function (id) {
         })
     })
 }
+Option.getName = function (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM options WHERE option_id=${id}`, (err, data) => {
+            if (err || data.length == 0) {
+                resolve(null)
+            }
+            else resolve(data[0].name)
+        })
+    })
+}
 Option.create = function (data, result) {
     try {
         db.query(`INSERT INTO options SET ?`, data, (err, kq) => {

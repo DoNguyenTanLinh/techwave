@@ -1,12 +1,14 @@
-const AccountResquest = function (acount) {
-    this.fullname = acount.fullname;
-    this.email = acount.email;
-    this.phone = acount.phone;
-    this.dob = acount.dob;
-    this.gender = acount.gender;
-    this.username = acount.username;
-    this.avatar = acount.avatar;
+const ModifyAccountResquest = function (acount, data) {
+    acount.fullname = data.fullname;
+    acount.email = data.email;
+    acount.phone = data.phone;
+    acount.dob = data.dob;
+    acount.gender = data.gender;
+    acount.username = data.username;
+    acount.password = data.password;
+    acount.address = data.address;
+    acount.avatar = data.avatar;
 }
 
 
-module.exports = AccountResquest;
+module.exports = { ModifyAccountResquest };

@@ -13,6 +13,8 @@ function router(app) {
     app.post('/login', apiController.handleLogin);
     app.post('/logout', apiController.handleLogout);
     app.post('/register', apiController.handleRegister);
+    app.post('/registerStaff', apiController.handleRegisterStaff);
+    app.put('/forgotPassword', apiController.handleForgotPassword);
     app.use('/admin', adminRouter);
     app.use('/staff', staffRouter);
     app.use('/user', userRouter);
