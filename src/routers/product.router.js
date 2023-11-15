@@ -9,6 +9,6 @@ product.post('/create', productController.create_product)
 product.put('/edit/:id', productController.update_product)
 product.delete('/remove/:id', productController.delete_product)
 product.get('/:id', productController.getOne_product)
-product.get('/', productController.getAll_product)
+product.get('/', productController.getAllForUser_product)
 
 module.exports = product;

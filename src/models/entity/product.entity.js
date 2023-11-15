@@ -1,35 +1,20 @@
 const db = require('../../connection/connect')
 const date = require('date-and-time');
-const Option = require('./option.entity');
-const FavorProduct = require('./favorProduct.entity');
 const Product = function (product) {
     this.product_id = product.product_id;
-    this.name = product.name
-    this.quantity = product.quantity
-    this.origin = product.origin
-    this.price = product.price
-    this.promotional_price = product.promotional_price
-    this.category_id = product.category_id
-    this.option = null;
-    this.favStatus = null;
-    this.init = async function () {
-        try {
-            this.option = await Option.getAll(product.product_id);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    this.getStatus = async function (data) {
-        try {
-            this.favStatus = await FavorProduct.find_fav(data);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
+    this.name = product.name;
+    this.quantity = product.quantity;
+    this.origin = product.origin;
+    this.price = product.price;
+    this.promotional_price = product.promotional_price;
+    this.category_id = product.category_id;
+    this.image = product.image;
+    this.createBy = product.createBy;
+    this.createAt = product.createAt;
+    this.modifiedAt = product.modifiedAt;
 }
-Product.getAll = function (result) {
-    db.query('SELECT * FROM product', (err, data) => {
+Product.getAll = function (id, result) {
+    db.query(`	SELECT * FROM product WHERE createBy=${id}`, (err, data) => {
         if (err) result(null)
         else result(data)
     })
@@ -42,13 +27,22 @@ Product.getOne = function (id) {
         })
     })
 }
+Product.getName = function (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT product_id,name From product WHERE product_id=${id}`, (err, data) => {
+            if (err || data.length == 0) resolve(null)
+            else resolve(data[0])
+        })
+    })
+}
 
 Product.getDetails = function (id, result) {
     try {
         db.query(`SELECT * From product WHERE product_id=${id}`, (err, data) => {
-            console.log(data)
             if (err) { console.log(err); result({ message: "Error database" }) }
-            else if (data.length < 1) { result({ message: "Không có sản phẩm" }) }
+            else if (data.length < 1) {
+                result({ message: "Không có sản phẩm", data: null })
+            }
             else result({ message: "Getting Detail Successful", data: data[0] })
         })
     } catch (err) {
@@ -56,10 +50,46 @@ Product.getDetails = function (id, result) {
         result({ message: "Error getting detail products", data: null })
     }
 }
+Product.getRating = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT FORMAT(sum(rating)/count(rating),1) as rating FROM review inner join product on review.product_id=product.product_id
+        WHERE product.product_id=${id}`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                if (result.length > 0) {
+                    resolve(result[0].rating);
+                } else {
+                    resolve(null);
+                }
+            }
+        })
+    })
+}
+Product.findHaveSales = function (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM bill inner join cart on bill.cart_id=cart.cart_id
+        inner join product on cart.product_id=product.product_id
+        WHERE product.product_id=${id} and bill.status=2`, (err, data) => {
+            if (err) console.log(err);
+            else resolve(data.length)
+        })
+    })
+}
+Product.getQuantity = function (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM techwave.product WHERE createBy=${id}`, (err, data) => {
+            if (err) reject(err)
+            else resolve(data.length)
+        })
+    })
+}
 Product.create = function (data, result) {
     try {
         const now = new Date();
         data.createAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
+        console.log(data)
         db.query(`INSERT INTO product SET ?`, data, (err, kq) => {
             if (err) { console.log(err); result({ message: "Error database" }) }
             else result({ message: "Create Product Successful", data: { product_id: kq.insertId, ...data } })
@@ -96,7 +126,9 @@ Product.delete = function (id, result) {
 
 Product.getByCategory = function (id, result) {
     try {
-        db.query(`SELECT * FROM product WHERE category_id=${id}`, (err, data) => {
+        db.query(`SELECT p.* FROM product as p
+        inner join category as c on p.category_id=c.category_id
+        WHERE p.category_id=${id} or c.category_parent_id=${id}`, (err, data) => {
             if (err || data.length < 1) { console.log(err); result(null) }
             else result(data)
         })

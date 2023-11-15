@@ -1,6 +1,5 @@
 const db = require('../../connection/connect');
 const date = require('date-and-time');
-const Address = require('./address.entity');
 const Account = function (acount) {
     this.account_id = acount.account_id;
     this.fullname = acount.fullname;
@@ -32,8 +31,24 @@ Account.getPermission = (id) => {
         });
     });
 }
-//address
 
+Account.getAddressByProduct = (product_id) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT account.address FROM product inner join account on product.createBy=account.account_id
+        WHERE product.product_id=${product_id}`, function (err, result) {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                if (result.length > 0) {
+                    resolve(result[0].address);
+                } else {
+                    resolve(null);
+                }
+            }
+        })
+    })
+}
 Account.getAllAccounts = function (result) {
     db.query("SELECT * FROM account", function (err, account) {
         if (err) throw result(err);
@@ -50,7 +65,7 @@ Account.findByEmail = function (email, result) {
         })
     })
 }
-Account.getById = function (id, result) {
+Account.getById = function (id) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM account where account_id=${id}`, function (err, account) {
             if (err || account.length == 0) resolve(null);

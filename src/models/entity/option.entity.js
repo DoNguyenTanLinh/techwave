@@ -3,6 +3,7 @@ const Option = function (option) {
     this.option_id = option.option_id;
     this.product_id = option.product_id;
     this.name = option.name;
+    this.image = option.image;
 }
 Option.getAll = function (id) {
     return new Promise((resolve, reject) => {
@@ -14,11 +15,11 @@ Option.getAll = function (id) {
 }
 Option.getName = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM options WHERE option_id=${id}`, (err, data) => {
+        db.query(`SELECT name,image FROM options WHERE option_id=${id}`, (err, data) => {
             if (err || data.length == 0) {
                 resolve(null)
             }
-            else resolve(data[0].name)
+            else resolve(data[0])
         })
     })
 }

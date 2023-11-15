@@ -1,8 +1,6 @@
-const accountRouter = require('./account.router');
 const userRouter = require('./user.router');
-const staffRouter = require('./staff.router');
+const vendorRouter = require('./vendor.router');
 const adminRouter = require('./admin.router');
-const addressRouter = require('./address.router');
 const homeRouter = require('./home.router');
 const apiController = require('../controller/api.controller');
 var { checkUserJWT, checkUserPermission, checkUserAction } = require('../middleware/JWTAction');
@@ -10,15 +8,15 @@ var { checkUserJWT, checkUserPermission, checkUserAction } = require('../middlew
 
 function router(app) {
     app.all('*', checkUserJWT, checkUserPermission, checkUserAction);
-    app.post('/login', apiController.handleLogin);
-    app.post('/logout', apiController.handleLogout);
-    app.post('/register', apiController.handleRegister);
-    app.post('/registerStaff', apiController.handleRegisterStaff);
-    app.put('/forgotPassword', apiController.handleForgotPassword);
-    app.use('/admin', adminRouter);
-    app.use('/staff', staffRouter);
-    app.use('/user', userRouter);
-    app.use('/', checkUserJWT, (req, res, next) => {
+    app.post('/api/login', apiController.handleLogin);
+    app.post('/api/logout', apiController.handleLogout);
+    app.post('/api/register', apiController.handleRegister);
+    app.post('/api/registerStaff', apiController.handleRegisterStaff);
+    app.put('/api/forgotPassword', apiController.handleForgotPassword);
+    app.use('/api/admin', adminRouter);
+    app.use('/api/vendor', vendorRouter);
+    app.use('/api/user', userRouter);
+    app.use('/api', checkUserJWT, (req, res, next) => {
         if (!req.user) {
             req.user = {};
             req.user.id = null;

@@ -1,5 +1,5 @@
 const db = require('../../connection/connect');
-const { CartResponse } = require('../response/cart.response')
+const { CartResponse, CartBillResponse } = require('../response/cart.response')
 const Cart = (cart) => {
     this.cart_id = cart.cart_id;
     this.product_id = cart.product_id;
@@ -23,6 +23,20 @@ Cart.findOne = (dataId) => {
             if (err) reject(err)
             else if (data.length == 0) resolve(null)
             else resolve(data[0])
+        })
+    })
+}
+Cart.BillfindById = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM cart WHERE cart_id=${id}`, async (err, data) => {
+            if (err) reject(err)
+            else if (data.length == 0) resolve(null)
+            else {
+                const cart = new CartBillResponse(data[0], CartBillResponse);
+                await cart.initProduct();
+                await cart.initOption();
+                resolve(cart)
+            }
         })
     })
 }

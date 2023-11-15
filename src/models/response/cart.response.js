@@ -23,5 +23,23 @@ const CartResponse = function (cart) {
         }
     }
 }
-
-module.exports = { CartResponse };
+const CartBillResponse = function (cart) {
+    this.product = null;
+    this.option = null;
+    this.quantity = cart.quantity;
+    this.initProduct = async function () {
+        try {
+            this.product = await Product.getName(cart.product_id);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    this.initOption = async function () {
+        try {
+            this.option = await Option.getName(cart.option_id);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
+module.exports = { CartResponse, CartBillResponse };

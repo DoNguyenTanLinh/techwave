@@ -24,10 +24,16 @@ const deleteDetail = function (id) {
 }
 const getDetail = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT content FROM detail WHERE product_id=${id}`, (err, kq) => {
-            if (err) { console.log(err); reject(err) }
-            else resolve(kq[0].content)
-        });
+        if (id) {
+            db.query(`SELECT content FROM detail WHERE product_id=${id}`, (err, kq) => {
+                if (err) { console.log(err); reject(err) }
+                else if (kq.length == 0) resolve(null)
+                else resolve(kq[0].content)
+            });
+        }
+        else {
+            resolve(null)
+        }
     })
 }
 
