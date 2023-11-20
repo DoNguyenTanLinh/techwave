@@ -8,14 +8,16 @@ const favorProductController = require('../controller/favProduct.controller')
 const paymentController = require('../controller/payment.controller')
 const reviewController = require('../controller/review.controller')
 const reportRouter = require('./report.router');
+const paymentRouter = require('./payment.router');
 
 user.use('/account', accountRouter);
 user.use('/cart', cartRouter)
 user.use('/bill', billUserRouter)
 user.use('/report', reportRouter);
-user.use('/folow', folowRouter)
+user.use('/folow', folowRouter);
+user.use('/payment', paymentRouter);
 user.post('/review', reviewController.create_review)
 user.post('/createBill', paymentController.createPayment)
-user.get('/payment', paymentController.getPaymentMethods)
+// user.get('/payment', paymentController.getPaymentMethods)
 user.get('/favor-product', favorProductController.get_favor_product);
 module.exports = user;

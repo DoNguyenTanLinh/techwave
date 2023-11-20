@@ -46,7 +46,9 @@ const checkUserJWT = async (req, res, next) => {
         }
     } else {
         // if (nonSecure.includes(req.api)) return next();
-        if (abc.includes(req.api)) {
+        if (req.path.split('/')[4] === 'vnpay_return') next();
+        else if (abc.includes(req.api)) {
+            console.log("Authentication");
             return res.status(401).json({
                 message: "Not authenticated the user"
             })
@@ -55,8 +57,10 @@ const checkUserJWT = async (req, res, next) => {
     }
 }
 const checkUserPermission = (req, res, next) => {
+
     // if (nonSecure.includes(req.api)) return next();
-    if (abc.includes(req.api)) {
+    if (req.path.split('/')[4] === 'vnpay_return') next();
+    else if (abc.includes(req.api)) {
 
 
         if (req.user) {
@@ -88,7 +92,8 @@ const checkUserPermission = (req, res, next) => {
 }
 const checkUserAction = (req, res, next) => {
     // if (nonSecure.includes(req.api)) return next();
-    if (abc.includes(req.api)) {
+    if (req.path.split('/')[4] === 'vnpay_return') next();
+    else if (abc.includes(req.api)) {
         if (req.user) {
             let oldUrl = (`${req.path.split('/')[3]}`);
             let currentUrl = (`${req.path.split('/')[4]}`);

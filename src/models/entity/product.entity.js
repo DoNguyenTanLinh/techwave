@@ -13,7 +13,13 @@ const Product = function (product) {
     this.createAt = product.createAt;
     this.modifiedAt = product.modifiedAt;
 }
-Product.getAll = function (id, result) {
+Product.getAll = function (result) {
+    db.query('SELECT * FROM product', (err, data) => {
+        if (err) result(null)
+        else result(data)
+    })
+}
+Product.getForVendor = function (id, result) {
     db.query(`	SELECT * FROM product WHERE createBy=${id}`, (err, data) => {
         if (err) result(null)
         else result(data)

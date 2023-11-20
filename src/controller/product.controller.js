@@ -3,10 +3,11 @@ const { setDetail, getDetail, deleteDetail } = require('../middleware/detailProd
 const { deleteAllOption, setAllCart } = require('../middleware/product.Action')
 const { setDeleteProduct } = require('../middleware/favProduct.Action')
 const { ProductResponse, ProductDetailResponse } = require('../models/response/product.response');
+const CategoryResponse = require('../models/response/category.response')
 const Category = require("../models/entity/category.entity");
 class ProductController {
     getAllForUser_product = function (req, res) {
-        Product.getAll(req.user.id, (data) => {
+        Product.getAll((data) => {
             const products = data.map(async (productData) => {
                 // console.log(req.user.id)
                 const fav = {
@@ -32,6 +33,9 @@ class ProductController {
                 });
 
         })
+    }
+    getForVendor_product = (req, res) => {
+
     }
     getDetail_product = async function (req, res) {
         Product.getDetails(req.params.id, async (data) => {
@@ -149,8 +153,14 @@ class ProductController {
 
                 })
                 Promise.all(products)
-                    .then((productsWithData) => {
-                        res.json(productsWithData);
+                    .then(async (productsWithData) => {
+                        const oldCate = await Category.findOne(req.params.id);
+                        if (oldCate.category_parent_id) {
+                            oldCate.category_id = oldCate.category_parent_id;
+                        }
+                        const category = new CategoryResponse(oldCate, CategoryResponse)
+                        await category.initCateChild();
+                        res.json({ listCate: category, data: productsWithData });
                     })
                     .catch((error) => {
                         console.error(error);

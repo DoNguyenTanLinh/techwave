@@ -2,6 +2,7 @@ const express = require('express');
 const accountController = require('../controller/account.controller')
 const { deleteAllAddress } = require('../middleware/address.Action')
 const { adminPermission } = require('../middleware/admin.Action')
+
 const router = express.Router();
 router.get('/detail/:id', accountController.get_OthDetails);
 router.get('/detail', accountController.get_Detail);

@@ -1,8 +1,10 @@
 const Account = require('../models/entity/account.enitty');
 const Address = require('../models/entity/address.entity');
 const { ModifyAccountResquest } = require('../models/resquest/account.request');
-const { setAddress } = require('../middleware/address.Action')
-const { deleteAllfav } = require('../middleware/favProduct.Action')
+const { setAddress } = require('../middleware/address.Action');
+const { deleteAllfav } = require('../middleware/favProduct.Action');
+
+const joi = require('joi');
 class AccountController {
     get_All = function (req, res) {
         Account.getAllAccounts(function (data) {
