@@ -24,7 +24,15 @@ Category.getChild = function (id) {
     })
 }
 
-
+Category.getIdCateStore = (id, result) => {
+    db.query(`select c.category_id,c.name,c.slug from category as c
+    inner join product as p on c.category_id=p.category_id
+    WHERE p.createBy=${id}
+    group by category_id`, (err, data) => {
+        if (err) { console.log(err); }
+        else result(data)
+    })
+}
 Category.getAll = function (result) {
     db.query("SELECT * FROM category WHERE category_parent_id is null", function (err, data) {
         if (err) { console.log(err); result(err) }

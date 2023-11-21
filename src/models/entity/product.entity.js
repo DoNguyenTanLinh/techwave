@@ -143,4 +143,16 @@ Product.getByCategory = function (id, result) {
         result(null)
     }
 }
+Product.getByCategoryStore = function (idStore, idCate) {
+    return new Promise((resolve, reject) => {
+        db.query(`select p.* from category as c
+        inner join product as p on c.category_id=p.category_id
+        WHERE p.createBy=${idStore} and p.category_id=${idCate}`, (err, data) => {
+            if (err) { console.log(err); reject(err) }
+            if (data.length == 0) resolve(null)
+            else resolve(data)
+        })
+    })
+
+}
 module.exports = Product;
