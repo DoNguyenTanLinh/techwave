@@ -35,7 +35,9 @@ class ProductController {
         })
     }
     getForVendor_product = (req, res) => {
-
+        Product.getForVendor(req.user.id, (data) => {
+            res.json(data)
+        })
     }
     getDetail_product = async function (req, res) {
         Product.getDetails(req.params.id, async (data) => {
@@ -47,8 +49,6 @@ class ProductController {
                 res.json(data);
             }
         })
-
-
     }
     create_product = async function (req, res) {
         req.body.createBy = req.user.id;

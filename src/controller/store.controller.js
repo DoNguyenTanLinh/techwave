@@ -2,6 +2,8 @@ const { await } = require("await");
 const Category = require("../models/entity/category.entity");
 const Product = require("../models/entity/product.entity");
 const Store = require("../models/entity/store.entity");
+const { ProductResponse } = require('../models/response/product.response');
+const { error } = require("jquery");
 class StoreController {
     getStore = async (req, res) => {
         const newStore = new Store(req.params.id, Store);
@@ -13,13 +15,29 @@ class StoreController {
         await newStore.initFolower();
 
         Category.getIdCateStore(req.params.id, (data) => {
-            const product = data.map(async (category) => {
+            const products = data.map(async (category) => {
                 const result = {}
                 result.category = category;
-                result.product = await Product.getByCategoryStore(req.params.id, category.category_id)
+                const product = await Product.getByCategoryStore(req.params.id, category.category_id)
+                const productMap = product.map(async (product) => {
+                    const fav = {
+                        product_id: product.product_id,
+                        account_id: req.user.id
+                    }
+                    const productResponse = new ProductResponse(product, ProductResponse)
+                    await productResponse.init();
+                    await productResponse.getStatus(fav);
+                    await productResponse.initHaveSales();
+                    await productResponse.initPlace();
+                    await productResponse.initRating();
+                    return productResponse;
+                })
+                result.product = await Promise.all(productMap);
                 return result;
+
             })
-            Promise.all(product)
+
+            Promise.all(products)
                 .then((data) => {
                     res.json({ info: newStore, data });
                 })
