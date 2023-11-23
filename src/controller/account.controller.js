@@ -3,11 +3,13 @@ const Address = require('../models/entity/address.entity');
 const { ModifyAccountResquest } = require('../models/resquest/account.request');
 const { setAddress } = require('../middleware/address.Action');
 const { deleteAllfav } = require('../middleware/favProduct.Action');
-
+const { transporter } = require('../service/SendMail')
 const joi = require('joi');
+const ejs = require('ejs');
+const fs = require('fs');
 class AccountController {
     get_All = function (req, res) {
-        Account.getAllAccounts(function (data) {
+        Account.getAllAccounts(req.body.status, function (data) {
             res.json(data);
         })
     }
@@ -89,6 +91,32 @@ class AccountController {
     active = (req, res) => {
         Account.active(req.params.id, function (result) {
             res.json({ message: result });
+        })
+    }
+    approve = (req, res) => {
+        Account.active(req.params.id, async function (result) {
+            if (result) {
+                let account = await Account.getById(req.params.id);
+                const emailTemplate = fs.readFileSync('teamplate/MailTeamplate.ejs', 'utf-8');
+                const renderedTemplate = ejs.render(emailTemplate, { username: account.username, email: account.email, password: account.password });
+                const mailSend = {
+                    from: 'TECHWAVE',
+                    to: account.email,
+                    subject: "Thông Báo: Đăng Ký Bán Hàng Thành Công trên TECHWAVE",
+                    // text: `Chào ${account.username},
+                    //     \nChúc mừng! Bạn đã đăng ký trở thành người bán trên TECHWAVE thành công.
+                    //     \nDưới đây là một số thông tin quan trọng về tài khoản của bạn:
+                    //     \nTên Đăng Nhập: ${account.email}\nMật khẩu: ${account.password}
+                    //     \nHãy kiểm tra và đảm bảo rằng thông tin của bạn đã đúng. Nếu có bất kỳ thay đổi hoặc sửa đổi nào cần thiết, vui lòng cập nhật trong phần cài đặt tài khoản của bạn.
+                    //     \nChúng tôi rất mong đợi sự hợp tác thành công giữa bạn và [Tên Nền Tảng của Bạn]. Nếu có bất kỳ câu hỏi hoặc cần hỗ trợ nào, đừng ngần ngại liên hệ với chúng tôi qua địa chỉ email hỗ trợ: techwaveute@gmail.com.
+                    //     \nChúng tôi hy vọng bạn có trải nghiệm tốt nhất khi sử dụng dịch vụ của chúng tôi. Xin chân thành cảm ơn đã tham gia cùng chúng tôi!
+                    //     \nTrân trọng,\nAdministrator of TECHWAVE`
+                    html: renderedTemplate
+                }
+                const info = await transporter.sendMail(mailSend);
+                console.log("Message sent: %s", info.messageId);
+                res.status(200).json({ message: "Phê duyệt thành công" });
+            }
         })
     }
 }

@@ -12,7 +12,7 @@ function router(app) {
     app.post('/api/logout', apiController.handleLogout);
     app.post('/api/register', apiController.handleRegister);
     app.post('/api/registerStaff', apiController.handleRegisterStaff);
-    app.put('/api/forgotPassword', apiController.handleForgotPassword);
+    app.post('/api/forgotPassword', apiController.handleForgotPassword);
     app.use('/api/admin', adminRouter);
     app.use('/api/vendor', vendorRouter);
     app.use('/api/user', userRouter);

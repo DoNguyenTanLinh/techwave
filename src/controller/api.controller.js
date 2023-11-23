@@ -83,17 +83,15 @@ class ApiController {
                 await Account.setpassword(password, email.email);
                 email.password = password;
                 const mailSend = {
-                    from: process.env.EMAIL_ADDRESS,
+                    from: 'TECHWAVE',
                     to: email.email,
                     subject: "Thông báo đổi mật khẩu thành công",
                     text: `Chào ${email.username},
                         \nChúng tôi đã nhận được thông báo đổi mật khẩu từ bạn. Dưới đây là mật khẩu mới của bạn:
                         Mật khẩu: ${password}
                         \nVui lòng không chia sẻ mật khẩu với bất kỳ ai
-                        \nNếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ gì, xin đừng ngần ngại liên hệ với chúng tôi tại fa.java14.group3@gmail.com .
-                        Chúng tôi rất mong được phục vụ bạn và chúc bạn có trải nghiệm tuyệt vời với TECHWAVE.
-                        \nXin chân thành cảm ơn đã lựa chọn chúng tôi.Trân trọng,
-                        Administrator of TECHWAVE`,
+                        \nNếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ gì, xin đừng ngần ngại liên hệ với chúng tôi tại techwaveute@gmail.com.\nChúng tôi rất mong được phục vụ bạn và chúc bạn có trải nghiệm tuyệt vời với TECHWAVE.
+                        \nXin chân thành cảm ơn đã lựa chọn chúng tôi.Trân trọng,\nAdministrator of TECHWAVE`
                 }
                 const info = await transporter.sendMail(mailSend);
                 console.log("Message sent: %s", info.messageId);

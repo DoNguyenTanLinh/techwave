@@ -11,6 +11,7 @@ router.put('/edit/:id', adminPermission, accountController.update_account);
 router.put('/edit', accountController.update_account);
 router.put('/delete-soft/:id', accountController.soft_delete);
 router.put('/active/:id', accountController.active);
+router.put('/approve/:id', accountController.approve);
 router.delete('/remove/:id', deleteAllAddress, accountController.remove_account);
 router.get('/', accountController.get_All);
 

@@ -61,8 +61,6 @@ const checkUserPermission = (req, res, next) => {
     // if (nonSecure.includes(req.api)) return next();
     if (req.path.split('/')[4] === 'vnpay_return') next();
     else if (abc.includes(req.api)) {
-
-
         if (req.user) {
             let email = req.user.email;
             let roles = req.user.groupWithRole;
@@ -113,6 +111,7 @@ const checkUserAction = (req, res, next) => {
                 delete_soft: (currentUrl === 'delete-soft' && roles.Account == process.env.FULL_ACCESS),
                 remove: (currentUrl === 'remove' && roles.Account == process.env.FULL_ACCESS),
                 active: (currentUrl === 'active' && roles.Account == process.env.FULL_ACCESS),
+                active: (currentUrl === 'approve' && roles.Account == process.env.FULL_ACCESS),
                 view: (currentUrl == 'detail' && roles.Account != process.env.ACCESS_DENIED),
                 view_all: ((currentUrl === '' && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
             }

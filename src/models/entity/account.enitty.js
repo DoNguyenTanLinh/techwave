@@ -49,8 +49,8 @@ Account.getAddressByProduct = (product_id) => {
         })
     })
 }
-Account.getAllAccounts = function (result) {
-    db.query("SELECT * FROM account", function (err, account) {
+Account.getAllAccounts = function (status, result) {
+    db.query(`SELECT * FROM account WHERE status=${status}`, function (err, account) {
         if (err) throw result(err);
         else result(account);
     });
