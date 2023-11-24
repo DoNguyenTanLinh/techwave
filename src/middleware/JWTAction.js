@@ -29,11 +29,18 @@ const verifyToken = (token) => {
         })
     });
 }
+const extractToken = (req) => {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        return req.headers.authorization.split(' ')[1];
+    }
+    return null;
+}
 const checkUserJWT = async (req, res, next) => {
     req.api = `/${req.path.split('/')[2]}`
     let cookie = req.cookies;
-    if (cookie && cookie.jwt) {
-        let token = cookie.jwt;
+    const tokenFromHeader = extractToken(req);
+    if ((cookie && cookie.jwt) || tokenFromHeader) {
+        let token = cookie && cookie.jwt ? cookie.jwt : tokenFromHeader;
         let decoded = await verifyToken(token);
         if (decoded) {
             req.user = decoded;
@@ -44,7 +51,8 @@ const checkUserJWT = async (req, res, next) => {
                 message: "Not authenticated the user"
             })
         }
-    } else {
+    }
+    else {
         // if (nonSecure.includes(req.api)) return next();
         if (req.path.split('/')[4] === 'vnpay_return') next();
         else if (abc.includes(req.api)) {

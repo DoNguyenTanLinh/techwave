@@ -150,7 +150,6 @@ class ProductController {
                     await product.initPlace();
                     await product.initRating();
                     return product;
-
                 })
                 Promise.all(products)
                     .then(async (productsWithData) => {
@@ -163,8 +162,7 @@ class ProductController {
                         res.json({ listCate: category, data: productsWithData });
                     })
                     .catch((error) => {
-                        console.error(error);
-                        res.status(500).send("Error fetching product data");
+                        res.status(500).send({ message: "Error fetching product data", error });
                     });
             } else res.json({ message: "Không có sản phẩm", data: null })
         })
