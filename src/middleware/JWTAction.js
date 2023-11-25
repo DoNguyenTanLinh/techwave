@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const abc = ['/admin', '/vendor', '/user']
 const createJWT = function (payload) {
     return new Promise(function (resolve, reject) {
-
         jwt.sign(payload, process.env.JWT_SECRET, {
             algorithm: 'HS256',
             expiresIn: process.env.TOKEN_TIME_LIFE,
@@ -30,7 +29,7 @@ const verifyToken = (token) => {
     });
 }
 const extractToken = (req) => {
-    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer ') {
         return req.headers.authorization.split(' ')[1];
     }
     return null;
@@ -209,8 +208,6 @@ const checkUserAction = (req, res, next) => {
                     })
                 }
             }
-
-
             else {
                 return res.status(403).json({
                     message: "You dont have permission to access this resource...",

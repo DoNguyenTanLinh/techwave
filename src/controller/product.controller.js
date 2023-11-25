@@ -122,8 +122,6 @@ class ProductController {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-
-
     }
     delete_product = function (req, res) {
         let id = req.params.id;
@@ -143,9 +141,10 @@ class ProductController {
                         product_id: productData.product_id,
                         account_id: req.user.id
                     }
+                    console.log("abc")
                     const product = new ProductResponse(productData, ProductResponse);
                     await product.init()
-                    await product.getStatus(fav)
+                    await product.gsetStatus(fav)
                     await product.initHaveSales();
                     await product.initPlace();
                     await product.initRating();

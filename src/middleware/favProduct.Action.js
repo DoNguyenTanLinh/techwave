@@ -5,7 +5,7 @@ const deleteAllfav = (id) => {
     })
 }
 const setDeleteProduct = (id) => {
-    db.query(`UPDATE favorite_product set product_id=null where product_id=${id}`, (err) => {
+    db.query(`DELETE FROM favorite_product where product_id=${id}`, (err) => {
         if (err) (console.log(err));
     })
 }

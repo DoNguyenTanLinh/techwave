@@ -3,9 +3,7 @@ const Account = require('../models/entity/account.enitty');
 const jwtService = require('../service/JWTService');
 var { createJWT, verifyToken } = require('../middleware/JWTAction');
 const checkLogin = async function (req) {
-    const data = await Account.findOne(req.email, req.password, function (account) {
-        return account
-    });
+    const data = await Account.findOne(req.email, req.password)
     if (data && data.status == 1) {
         let groupWithRole = await jwtService.getGroupWithRoles(data.email)
         let payload = {
