@@ -141,10 +141,9 @@ class ProductController {
                         product_id: productData.product_id,
                         account_id: req.user.id
                     }
-                    console.log("abc")
                     const product = new ProductResponse(productData, ProductResponse);
                     await product.init()
-                    await product.gsetStatus(fav)
+                    await product.getStatus(fav)
                     await product.initHaveSales();
                     await product.initPlace();
                     await product.initRating();

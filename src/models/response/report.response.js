@@ -12,6 +12,7 @@ const ReportUserResponse = function (report) {
             this.account_report = {
                 account_id: account.account_id,
                 username: account.username,
+                avatar: account.avatar
             }
         } catch (e) {
             console.log(e);

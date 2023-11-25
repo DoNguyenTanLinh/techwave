@@ -23,7 +23,7 @@ Report.getByRole = (id, result) => {
             const userReports = data.map(async (report) => {
                 const userReport = new ReportUserResponse(report, ReportUserResponse)
                 await userReport.initReport();
-                await userReport.initReason();
+                // await userReport.initReason();
                 return userReport
             })
             Promise.all(userReports)

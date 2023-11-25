@@ -7,7 +7,7 @@ const Folow = function (folow) {
 Folow.get = function (id, result) {
     db.query(`SELECT * FROM folow WHERE user_id=${id}`, (err, data) => {
         if (err) console.log(err);
-        else result({ data });
+        else result(data);
     })
 }
 Folow.getFolowStore = (id) => {

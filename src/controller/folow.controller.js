@@ -1,8 +1,18 @@
+const { await } = require("await");
 const Folow = require("../models/entity/folow.entity");
+const FolowResponse = require("../models/response/folow.response");
 class FolowController {
     get_folow = (req, res) => {
         Folow.get(req.user.id, (data) => {
-            res.json(data);
+            const folows = data.map(async (folowData) => {
+                const folow = new FolowResponse(folowData, FolowResponse);
+                await folow.initStore()
+                return folow
+            })
+            Promise.all(folows)
+                .then((folowsWithData) => res.json(folowsWithData))
+                .catch((error) => res.json({ message: "Error fetching folow data", error }))
+
         })
     }
     add_folow = (req, res) => {
