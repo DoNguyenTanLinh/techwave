@@ -4,6 +4,7 @@ const Product = require("../models/entity/product.entity");
 const Store = require("../models/entity/store.entity");
 const { ProductResponse } = require('../models/response/product.response');
 const { error } = require("jquery");
+const Follow = require("../models/entity/folow.entity");
 class StoreController {
     getStore = async (req, res) => {
         const newStore = new Store(req.params.id, Store);
@@ -13,7 +14,10 @@ class StoreController {
         await newStore.initResponseRate();
         await newStore.initJoin();
         await newStore.initFolower();
-
+        newStore.status = false;
+        if (req.user.groupWithRole.RoleName === 'USER') {
+            newStore.status = await Follow.findFollow(req.params.id, req.user.id)
+        }
         Category.getIdCateStore(req.params.id, (data) => {
             const products = data.map(async (category) => {
                 const result = {}

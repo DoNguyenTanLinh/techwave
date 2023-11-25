@@ -1,12 +1,12 @@
 const Account = require("../entity/account.enitty");
 
-const FolowResponse = function (folow) {
-    this.folow_id = folow.folow_id;
-    this.user_id = folow.user_id;
+const FollowResponse = function (follow) {
+    this.follow_id = follow.follow_id;
+    this.user_id = follow.user_id;
     this.store = null;
     this.initStore = async () => {
         try {
-            let account = await Account.getById(folow.vender_id)
+            let account = await Account.getById(follow.vender_id)
             this.store = {
                 account_id: account.account_id,
                 username: account.username,
@@ -17,4 +17,4 @@ const FolowResponse = function (folow) {
         }
     }
 }
-module.exports = FolowResponse;
+module.exports = FollowResponse;

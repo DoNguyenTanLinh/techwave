@@ -23,7 +23,7 @@ class FolowController {
     }
     delete_folow = (req, res) => {
         let data = {
-            vender_id: req.params.id,
+            follow_id: req.params.id,
             user_id: req.user.id
         }
         Folow.delete(data, (result) => {
