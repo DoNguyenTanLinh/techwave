@@ -51,6 +51,19 @@ Review.getByStaff = (id, status, result) => {
     db.query(`SELECT review.* FROM review
     inner join product on review.product_id=product.product_id
     WHERE product.createBy=${id} and status=${status}`, (err, data) => {
+        if (err) console.log(err)
+        result(data)
+    })
+}
+Review.getByUser = (id, status, result) => {
+    db.query(`SELECT * FROM review WHERE account_id=${id} and status=${status}`, (err, data) => {
+        if (err) console.log(err)
+        result(data)
+    })
+}
+Review.getByAdmin = (result) => {
+    db.query(`SELECT * FROM review`, (err, data) => {
+        if (err) console.log(err)
         result(data)
     })
 }

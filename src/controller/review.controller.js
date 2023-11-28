@@ -8,10 +8,21 @@ class ReviewController {
             res.json(kq)
         })
     }
-    getReview_ByStaff = (req, res) => {
-        Review.getByStaff(req.user.id, req.body.status, (data) => {
+    getReview_ByAdmin = (req, res) => {
+        Review.getByAdmin((data) => {
             res.json(data)
         })
+    }
+    getReview_ByStaff = (req, res) => {
+        if (req.user.groupWithRole.RoleName === 'VENDOR') {
+            Review.getByStaff(req.user.id, req.params.status, (data) => {
+                res.json(data)
+            })
+        } else if (req.user.groupWithRole.RoleName === 'USER') {
+            Review.getByUser(req.user.id, req.params.status, (data) => {
+                res.json(data)
+            })
+        }
     }
     getDetail_review = (req, res) => {
         Review.getDetail(req.params.id, (data) => {

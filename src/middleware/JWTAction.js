@@ -35,6 +35,7 @@ const extractToken = (req) => {
     return null;
 }
 const checkUserJWT = async (req, res, next) => {
+
     req.api = `/${req.path.split('/')[2]}`
     let cookie = req.cookies;
     const tokenFromHeader = extractToken(req);
@@ -46,6 +47,7 @@ const checkUserJWT = async (req, res, next) => {
             req.token = token;
             next();
         } else {
+
             return res.status(401).json({
                 message: "Not authenticated the user"
             })
@@ -120,7 +122,7 @@ const checkUserAction = (req, res, next) => {
                 active: (currentUrl === 'active' && roles.Account == process.env.FULL_ACCESS),
                 active: (currentUrl === 'approve' && roles.Account == process.env.FULL_ACCESS),
                 view: (currentUrl == 'detail' && roles.Account != process.env.ACCESS_DENIED),
-                view_all: ((currentUrl === '' && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
+                view_all: ((currentUrl === 'status' && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
             }
 
             let category = {

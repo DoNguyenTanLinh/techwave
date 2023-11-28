@@ -15,7 +15,7 @@ class StoreController {
         await newStore.initJoin();
         await newStore.initFolower();
         newStore.status = false;
-        if (req.user.groupWithRole.RoleName === 'USER') {
+        if (req.user.id != null && req.user.groupWithRole.RoleName === 'USER') {
             newStore.status = await Follow.findFollow(req.params.id, req.user.id)
         }
         Category.getIdCateStore(req.params.id, (data) => {

@@ -3,7 +3,7 @@ const BillResponse = require('../models/response/bill.response');
 
 class BillController {
     getforVender_bill = (req, res) => {
-        Bill.getBillOfVender(req.user.id, req.body.status, (data) => {
+        Bill.getBillOfVender(req.user.id, req.params.status, (data) => {
             if (data) {
                 const bills = data.map(async (billData) => {
                     const bill = new BillResponse(billData);

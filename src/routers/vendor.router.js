@@ -8,7 +8,6 @@ const reviewRouter = require('./review.router');
 const reportRouter = require('./report.router');
 const ResponseController = require('../controller/response.controller');
 vendor.use('/account', accountRouter);
-
 vendor.use('/product', productRouter);
 vendor.use('/bill', billRouter);
 vendor.use('/review', reviewRouter);

@@ -34,7 +34,7 @@ Follow.add = function (data, result) {
     })
 }
 Follow.delete = function (data, result) {
-    db.query(`DELETE FROM folow WHERE follow_id=${data.follow_id} and user_id=${data.user_id}`, data, (err, kq) => {
+    db.query(`DELETE FROM folow WHERE vender_id=${data.vender_id} and user_id=${data.user_id}`, data, (err, kq) => {
         if (err) console.log(err)
         else result({ success: true, message: "Hủy folow thành công" })
     })

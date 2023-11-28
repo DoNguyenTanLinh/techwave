@@ -9,7 +9,7 @@ const ejs = require('ejs');
 const fs = require('fs');
 class AccountController {
     get_All = function (req, res) {
-        Account.getAllAccounts(req.body.status, function (data) {
+        Account.getAllAccounts(req.params.status, function (data) {
             res.json(data);
         })
     }

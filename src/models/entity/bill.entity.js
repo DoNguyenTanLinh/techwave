@@ -55,8 +55,11 @@ Bill.create = (data) => {
 }
 Bill.approve = (id, result) => {
     const now = new Date();
-    data.acceptAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
-    db.query(`UPDATE bill SET status='1' WHERE bill_id=${id} `, (err) => {
+    let data = {
+        status: 1,
+        acceptAt: date.format(now, 'YYYY/MM/DD HH:mm:ss')
+    }
+    db.query(`UPDATE bill SET ? WHERE bill_id=${id} `, data, (err) => {
         if (err) console.log(err);
         else result("Chấp nhận đơn hàng Thành công")
     })
