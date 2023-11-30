@@ -1,6 +1,6 @@
 const Account = require('../models/entity/account.enitty');
 const Address = require('../models/entity/address.entity');
-const { ModifyAccountResquest } = require('../models/resquest/account.request');
+// const { ModifyAccountResquest } = require('../models/resquest/account.request');
 const { setAddress } = require('../middleware/address.Action');
 const { deleteAllfav } = require('../middleware/favProduct.Action');
 const { transporter } = require('../service/SendMail')
@@ -48,8 +48,8 @@ class AccountController {
         if (!req.params.id) {
             try {
                 let oldAccount = await Account.getById(req.user.id);
-                ModifyAccountResquest(oldAccount, req.body);
-                Account.update(req.user.id, oldAccount, function (result) {
+                // ModifyAccountResquest(oldAccount, req.body);
+                Account.update(req.user.id, req.body, function (result) {
                     res.json({ message: result });
                 })
             } catch (err) {

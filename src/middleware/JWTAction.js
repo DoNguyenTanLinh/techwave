@@ -122,7 +122,7 @@ const checkUserAction = (req, res, next) => {
                 active: (currentUrl === 'active' && roles.Account == process.env.FULL_ACCESS),
                 active: (currentUrl === 'approve' && roles.Account == process.env.FULL_ACCESS),
                 view: (currentUrl == 'detail' && roles.Account != process.env.ACCESS_DENIED),
-                view_all: ((currentUrl === 'status' && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
+                view_all: (((currentUrl === 'status' || currentUrl === '') && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
             }
 
             let category = {
