@@ -8,16 +8,16 @@ class ReportController {
             res.json(data);
         })
     }
+    getByAdmin_report = (req, res) => {
+        Report.getAll(req.params.status, (data) => {
+            res.json(data);
+        })
+
+    }
     get_report = (req, res) => {
-        if (req.user.groupWithRole.RoleName !== 'ADMIN') {
-            Report.getByRole(req.user.id, (data) => {
-                res.json(data);
-            })
-        } else {
-            Report.getAll(req.body.status, (data) => {
-                res.json(data);
-            })
-        }
+        Report.getByRole(req.user.id, (data) => {
+            res.json(data);
+        })
     }
     get_detail_report = (req, res) => {
         Report.getdetails(req.params.id, (data) => {
