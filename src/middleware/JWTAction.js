@@ -120,7 +120,7 @@ const checkUserAction = (req, res, next) => {
                 delete_soft: (currentUrl === 'delete-soft' && roles.Account == process.env.FULL_ACCESS),
                 remove: (currentUrl === 'remove' && roles.Account == process.env.FULL_ACCESS),
                 active: (currentUrl === 'active' && roles.Account == process.env.FULL_ACCESS),
-                active: (currentUrl === 'approve' && roles.Account == process.env.FULL_ACCESS),
+                approve: (currentUrl === 'approve' && roles.Account == process.env.FULL_ACCESS),
                 view: (currentUrl == 'detail' && roles.Account != process.env.ACCESS_DENIED),
                 view_all: (((currentUrl === 'status' || currentUrl === '') && roles.RoleName == 'ADMIN') && roles.Account != process.env.ACCESS_DENIED)
             }
@@ -152,7 +152,7 @@ const checkUserAction = (req, res, next) => {
                 view: (req.method === 'GET' && roles.Report != process.env.ACCESS_DENIED)
             }
             if (oldUrl === 'account') {
-                if (acctionAccount.create || acctionAccount.modify || acctionAccount.delete_soft || acctionAccount.remove || acctionAccount.view || acctionAccount.view_all || acctionAccount.active) {
+                if (acctionAccount.create || acctionAccount.modify || acctionAccount.delete_soft || acctionAccount.remove || acctionAccount.view || acctionAccount.view_all || acctionAccount.active || acctionAccount.approve) {
                     next();
                 } else {
                     return res.status(403).json({
@@ -166,7 +166,7 @@ const checkUserAction = (req, res, next) => {
             else if (oldUrl === 'createBill') next();
             else if (oldUrl === 'bill') next();
             else if (oldUrl === 'folow') next();
-            else if (oldUrl === 'reason') next();
+            // else if (oldUrl === 'reason') next();
             else if (oldUrl === 'response') next();
             else if (oldUrl === 'favor-product') next();
             else if (oldUrl === 'cart') next();

@@ -13,6 +13,7 @@ class PaymentController {
         const data = new BillResquest(req.body, BillResquest)
         let carts = req.body.carts;
         data.createBy = req.user.id;
+        data.payment = 'Thanh toán khi nhận hàng';
         const results = carts.map(async (cart) => {
             data.cart_id = cart.cart_id;
             return await Bill.create(data)

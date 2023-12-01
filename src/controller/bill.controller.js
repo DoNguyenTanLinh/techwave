@@ -1,3 +1,4 @@
+const { await } = require("await");
 const Bill = require("../models/entity/bill.entity");
 const BillResponse = require('../models/response/bill.response');
 
@@ -7,6 +8,7 @@ class BillController {
             if (data) {
                 const bills = data.map(async (billData) => {
                     const bill = new BillResponse(billData);
+                    await bill.initPaymentId();
                     await bill.init();
                     return bill;
                 })
@@ -21,6 +23,7 @@ class BillController {
     getOne_bill = (req, res) => {
         Bill.getOne(req.params.id, async (data) => {
             const bill = new BillResponse(data);
+            await bill.initPaymentId();
             await bill.init();
             res.json(bill)
         })
@@ -31,6 +34,7 @@ class BillController {
                 const bills = data.map(async (billData) => {
                     const bill = new BillResponse(billData);
                     await bill.init();
+                    await bill.initPaymentId();
                     return bill;
                 })
                 Promise.all(bills)
@@ -47,6 +51,7 @@ class BillController {
                 const bills = data.map(async (billData) => {
                     const bill = new BillResponse(billData);
                     await bill.init();
+                    await bill.initPaymentId();
                     return bill;
                 })
                 Promise.all(bills)

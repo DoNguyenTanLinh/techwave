@@ -62,7 +62,7 @@ Cart.create = (data, result) => {
     })
 }
 Cart.updateQuantity = (id, data, result) => {
-    db.query(`UPDATE cart SET quantity=${data.quantity},option_id=${data.option_id} WHERE cart_id=${id}`, (err) => {
+    db.query(`UPDATE cart SET ? WHERE cart_id=${id}`, data, (err) => {
         if (err) { console.log(err); result({ message: "Error creating Cart", data: null }) }
         else result({ message: "Thêm vào giỏ hàng thành công" })
 

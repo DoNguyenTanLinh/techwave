@@ -12,6 +12,7 @@ const Bill = function (bill) {
     this.status = bill.status;
     this.createdAt = bill.createdAt;
     this.acceptAt = bill.acceptAt;
+    this.payment_id = bill.payment_id;
 }
 
 Bill.getBillOfVender = (id, status, result) => {
@@ -87,7 +88,11 @@ Bill.delete = (id, result) => {
         if (err) console.log(err);
         else result("Đơn hàng đã xóa")
     })
-
+}
+Bill.deleteByPaymentId = (payment_id) => {
+    db.query(`DELETE From bill WHERE payment_id=${payment_id}`, (err) => {
+        if (err) console.log(err);
+    })
 }
 
 module.exports = Bill;

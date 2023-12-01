@@ -3,7 +3,10 @@ const router = express.Router();
 let $ = require('jquery');
 const request = require('request');
 const moment = require('moment');
-
+const paymentController = require('../controller/payment.controller');
+const BillResquest = require('../models/resquest/bill.resquest');
+const Bill = require('../models/entity/bill.entity');
+const Payment = require('../models/entity/payment.entity');
 
 router.get('/', function (req, res, next) {
     res.render('orderlist', { title: 'Danh sách đơn hàng' })
@@ -26,10 +29,8 @@ router.get('/refund', function (req, res, next) {
 });
 
 
-router.post('/create_payment_url', function (req, res, next) {
-
+router.post('/create_payment_url', async function (req, res, next) {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
-
     let date = new Date();
     let createDate = moment(date).format('YYYYMMDDHHmmss');
 
@@ -43,7 +44,8 @@ router.post('/create_payment_url', function (req, res, next) {
     let tmnCode = config.get('vnp_TmnCode');
     let secretKey = config.get('vnp_HashSecret');
     let vnpUrl = config.get('vnp_Url');
-    let returnUrl = config.get('vnp_ReturnUrl');
+    let returnUrl = req.body.returnUrl;
+    // let returnUrl = config.get('vnp_ReturnUrl');
     let orderId = moment(date).format('DDHHmmss');
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
@@ -66,6 +68,16 @@ router.post('/create_payment_url', function (req, res, next) {
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
+    let bill = {
+        fullname: req.body.fullname,
+        phone: req.body.phone,
+        address: req.body.address,
+        totalBill: req.body.amount,
+        express: req.body.express,
+        payment: "VNPAY",
+        payment_id: orderId
+    }
+
     if (bankCode !== null && bankCode !== '') {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
@@ -79,10 +91,27 @@ router.post('/create_payment_url', function (req, res, next) {
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-    console.log(vnpUrl);
-    res.redirect(vnpUrl)
-    // res.json({ http: vnpUrl });
 
+    let payment = {
+        payment_id: orderId,
+        status: 0,
+        url: vnpUrl
+    }
+    Payment.create(payment)
+    try {
+        const data = new BillResquest(bill, BillResquest);
+        let carts = req.body.carts;
+        data.createBy = req.user.id;
+        const results = await Promise.all(carts.map(async (cart) => {
+            data.cart_id = cart.cart_id;
+            return Bill.create(data);
+        }));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error fetching cart data");
+    }
+    res.json({ http: vnpUrl });
+    // res.redirect(vnpUrl)
 });
 router.get('/vnpay_return', function (req, res, next) {
     let vnp_Params = req.query;
@@ -103,15 +132,31 @@ router.get('/vnpay_return', function (req, res, next) {
     let crypto = require("crypto");
     let hmac = crypto.createHmac("sha512", secretKey);
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+    let code_id = vnp_Params['vnp_ResponseCode'];
     if (secureHash === signed) {
+        if (code_id == '00') {
+            Payment.update(vnp_Params['vnp_TxnRef'])
+            res.json({ message: 'Giao dịch thành công', code: code_id })
+        }
+        else {
+            Bill.deleteByPaymentId(vnp_Params['vnp_TxnRef'])
+            Payment.delete(vnp_Params['vnp_TxnRef'])
+            if (code_id == '24') {
+                res.json({ message: "Huỷ giao dịch thành công", code: code_id })
+            } else {
+                res.json({ message: 'Thanh toán thất bại', code: code_id })
+            }
+
+        }
         //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
         // res.send({ message: "success", data: { code: vnp_Params['vnp_ResponseCode'] } })
-        res.json({ message: 'success', code: vnp_Params['vnp_ResponseCode'] })
+
 
         // res.render('success', { code: vnp_Params['vnp_ResponseCode'] })
     } else {
+        Bill.deleteByPaymentId(vnp_Params['vnp_TxnRef'])
+        res.json({ message: 'Thanh toán thất bại', code: '97' })
 
-        res.json({ message: 'success', code: '97' })
         // res.render('success', { code: '97' })
     }
 });

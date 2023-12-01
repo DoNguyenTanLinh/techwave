@@ -38,7 +38,7 @@ Report.getdetails = (id, result) => {
         else {
             const userReport = new ReportUserResponse(data[0], ReportUserResponse)
             await userReport.initReport();
-            await userReport.initReason();
+            // await userReport.initReason();
             result(userReport)
         }
     })

@@ -5,5 +5,6 @@ const BillResquest = function (data) {
     this.totalBill = data.totalBill;
     this.express = data.express;
     this.payment = data.payment;
+    this.payment_id = data.payment_id;
 }
 module.exports = BillResquest;

@@ -1,5 +1,7 @@
+const { await } = require("await");
 const Cart = require("../models/entity/cart.entity");
 const { CartResponse } = require("../models/response/cart.response");
+const Product = require("../models/entity/product.entity");
 class CartController {
     getAll_cart = (req, res) => {
         Cart.findAll(req.user.id, (data) => {
@@ -27,10 +29,11 @@ class CartController {
     create_cart = async (req, res) => {
         const data = req.body;
         data.account_id = req.user.id;
-        data.product_id = req.params.id;
         data.status = '0';
         let oldCart = await Cart.findOne(data);
+        let oldProduct = await Product.getOne(req.body.product_id);
         if (!oldCart) {
+            data.price = oldProduct.price * data.quantity;
             Cart.create(data, (kq) => {
                 res.json(kq);
             })
@@ -40,6 +43,7 @@ class CartController {
                 quantity: oldCart.quantity + req.body.quantity,
                 option_id: data.option_id,
             }
+            cartBody.price = cartBody.quantity * oldProduct.price;
             Cart.updateQuantity(oldCart.cart_id, cartBody, (kq) => {
                 res.json(kq);
             })
