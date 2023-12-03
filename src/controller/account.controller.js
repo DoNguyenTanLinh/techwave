@@ -9,9 +9,36 @@ const ejs = require('ejs');
 const fs = require('fs');
 class AccountController {
     get_All = function (req, res) {
-        Account.getAllAccounts(req.params.status, function (data) {
-            res.json(data);
-        })
+        if (req.query.page) {
+            Account.getAllAccounts(req.query.status, function (data) {
+                const page = parseInt(req.query.page);
+                const limit = parseInt(req.query.limit);
+                // calculating the starting and ending index
+                const startIndex = (page - 1) * limit;
+                const endIndex = page * limit;
+                const results = {};
+                results.total = Math.ceil(data.length / limit)
+                if (endIndex < data.length) {
+                    results.next = {
+                        page: page + 1,
+                        limit: limit
+                    };
+                }
+                if (startIndex > 0) {
+                    results.previous = {
+                        page: page - 1,
+                        limit: limit
+                    };
+                }
+                results.results = data.slice(startIndex, endIndex);
+                res.status(200).json(results);
+            })
+        }
+        else {
+            Account.getAllAccounts(req.query.status, function (data) {
+                res.json(data);
+            })
+        }
     }
     get_Detail = async function (req, res) {
         try {

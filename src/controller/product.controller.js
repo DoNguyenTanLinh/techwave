@@ -35,9 +35,37 @@ class ProductController {
         })
     }
     getForVendor_product = (req, res) => {
-        Product.getForVendor(req.user.id, (data) => {
-            res.json(data)
-        })
+        if (req.query.page) {
+            Product.getForVendor(req.user.id, (data) => {
+                const page = parseInt(req.query.page);
+                const limit = parseInt(req.query.limit);
+
+                // calculating the starting and ending index
+                const startIndex = (page - 1) * limit;
+                const endIndex = page * limit;
+                const results = {};
+                results.total = Math.ceil(data.length / limit)
+                if (endIndex < data.length) {
+                    results.next = {
+                        page: page + 1,
+                        limit: limit
+                    };
+                }
+                if (startIndex > 0) {
+                    results.previous = {
+                        page: page - 1,
+                        limit: limit
+                    };
+                }
+                results.results = data.slice(startIndex, endIndex);
+                res.status(200).json(results);
+            })
+        }
+        else {
+            Product.getForVendor(req.user.id, (data) => {
+                res.json(data)
+            })
+        }
     }
     getDetail_product = async function (req, res) {
         Product.getDetails(req.params.id, async (data) => {
@@ -96,6 +124,11 @@ class ProductController {
             await product.initContent();
             await product.initCategory();
             res.json(product);
+        })
+    }
+    findByName_product = function (req, res) {
+        Product.findByName(req.params.name, (data) => {
+            res.json({ data })
         })
     }
     update_product = async function (req, res) {

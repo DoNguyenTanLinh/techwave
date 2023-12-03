@@ -8,16 +8,78 @@ class ReportController {
             res.json(data);
         })
     }
-    getByAdmin_report = (req, res) => {
-        Report.getAll(req.params.status, (data) => {
-            res.json(data);
-        })
-
-    }
     get_report = (req, res) => {
-        Report.getByRole(req.user.id, (data) => {
-            res.json(data);
-        })
+        if (req.user.groupWithRole.RoleName === 'ADMIN') {
+            if (req.query.page) {
+                Report.getAll(req.query.status, (data) => {
+                    const page = parseInt(req.query.page);
+                    const limit = parseInt(req.query.limit);
+                    // calculating the starting and ending index
+                    const startIndex = (page - 1) * limit;
+                    const endIndex = page * limit;
+                    const results = {};
+                    results.total = Math.ceil(data.length / limit)
+                    if (endIndex < data.length) {
+                        results.next = {
+                            page: page + 1,
+                            limit: limit
+                        };
+                    }
+                    if (startIndex > 0) {
+                        results.previous = {
+                            page: page - 1,
+                            limit: limit
+                        };
+                    }
+                    results.results = data.slice(startIndex, endIndex);
+                    res.status(200).json(results);
+                })
+            }
+            else {
+                Report.getAll(req.query.status, (data) => {
+                    res.json(data);
+                })
+            }
+        } else {
+            if (req.user.groupWithRole.RoleName === 'VENDOR') {
+                if (req.query.page) {
+                    Report.getByRole(req.user.id, (data) => {
+                        const page = parseInt(req.query.page);
+                        const limit = parseInt(req.query.limit);
+                        // calculating the starting and ending index
+                        const startIndex = (page - 1) * limit;
+                        const endIndex = page * limit;
+                        const results = {};
+                        results.total = Math.ceil(data.length / limit)
+                        if (endIndex < data.length) {
+                            results.next = {
+                                page: page + 1,
+                                limit: limit
+                            };
+                        }
+                        if (startIndex > 0) {
+                            results.previous = {
+                                page: page - 1,
+                                limit: limit
+                            };
+                        }
+                        results.results = data.slice(startIndex, endIndex);
+                        res.status(200).json(results);
+                    })
+
+                }
+                else {
+                    Report.getByRole(req.user.id, (data) => {
+                        res.json(data);
+                    })
+                }
+            }
+            else {
+                Report.getByRole(req.user.id, (data) => {
+                    res.json(data);
+                })
+            }
+        }
     }
     get_detail_report = (req, res) => {
         Report.getdetails(req.params.id, (data) => {

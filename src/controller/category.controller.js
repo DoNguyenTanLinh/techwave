@@ -4,10 +4,39 @@ const setCateProduct = require('../middleware/category.Action')
 class CategoryController {
     getAll_category = (req, res) => {
         try {
-            Category.getAll((data) => {
-                res.status(200).json(data);
-            })
+            if (req.query.page) {
+                Category.getAll((data) => {
+                    const page = parseInt(req.query.page);
+                    const limit = parseInt(req.query.limit);
+                    // calculating the starting and ending index
+                    const startIndex = (page - 1) * limit;
+                    const endIndex = page * limit;
+                    const results = {};
+                    results.total = Math.ceil(data.length / limit)
+                    if (endIndex < data.length) {
+                        results.next = {
+                            page: page + 1,
+                            limit: limit
+                        };
+                    }
+                    if (startIndex > 0) {
+                        results.previous = {
+                            page: page - 1,
+                            limit: limit
+                        };
+                    }
+                    results.results = data.slice(startIndex, endIndex);
+                    res.status(200).json(results);
+                })
+            }
+            else {
+                Category.getAll((data) => {
+                    res.status(200).json(data);
+                })
+            }
+
         } catch (e) {
+            console.log(e)
             res.status(500).json({ message: "Error getting all categories", error: e });
         }
     }
@@ -42,7 +71,7 @@ class CategoryController {
         try {
             await Category.findByName(req.body.name)
                 .then(() => {
-                    console.log(req.body)
+
                     Category.edit(req.params.id, req.body, (data) => {
                         res.status(200).json({ message: "Update Category Successful", data })
                     })

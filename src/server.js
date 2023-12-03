@@ -12,12 +12,14 @@ cloudinary.config({
     api_secret: process.env.CLOUNDINARY_API_SECRET
 });
 var corsOption = {
-    origin: true,
+    origin: 'http://localhost:3001',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    allowedHeaders: 'Content-Type,Authorization',
     exposedHeaders: ['x-auth-token']
 };
 app.use(cors(corsOption));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());

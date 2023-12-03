@@ -13,6 +13,7 @@ const Product = function (product) {
     this.createAt = product.createAt;
     this.modifiedAt = product.modifiedAt;
 }
+
 Product.getAll = function (result) {
     db.query('SELECT * FROM product', (err, data) => {
         if (err) result(null)
@@ -81,6 +82,12 @@ Product.findHaveSales = function (id) {
             if (err) console.log(err);
             else resolve(data.length)
         })
+    })
+}
+Product.findByName = function (name, result) {
+    db.query(`SELECT * FROM product WHERE name like '%${name}%'`, (err, data) => {
+        if (err) console.log(err)
+        else result(data)
     })
 }
 Product.getQuantity = function (id) {

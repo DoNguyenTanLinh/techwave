@@ -13,6 +13,7 @@ home.get('/product', productController.getAllForUser_product)
 home.get('/category/:id', productController.getByCategory)
 home.get('/category', categoryController.getAll_category)
 home.get('/store/:id', storeController.getStore)
+home.get('/search/:name', productController.findByName_product)
 home.post('/uploadFile', uploadCloud.single('image'), (req, res) => {
     if (!req.file) {
         res.json({ status: false, message: 'No file uploaded!' });
