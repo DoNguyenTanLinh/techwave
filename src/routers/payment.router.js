@@ -44,8 +44,8 @@ router.post('/create_payment_url', async function (req, res, next) {
     let tmnCode = config.get('vnp_TmnCode');
     let secretKey = config.get('vnp_HashSecret');
     let vnpUrl = config.get('vnp_Url');
-    // let returnUrl = req.body.returnUrl;
-    let returnUrl = config.get('vnp_ReturnUrl');
+    let returnUrl = req.body.returnUrl;
+    // let returnUrl = config.get('vnp_ReturnUrl');
     let orderId = moment(date).format('DDHHmmss');
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
@@ -141,11 +141,8 @@ router.get('/vnpay_return', function (req, res, next) {
         else {
             Bill.deleteByPaymentId(vnp_Params['vnp_TxnRef'])
             Payment.delete(vnp_Params['vnp_TxnRef'])
-            if (code_id == '24') {
-                res.json({ message: "Huỷ giao dịch thành công", code: code_id })
-            } else {
-                res.json({ message: 'Thanh toán thất bại', code: code_id })
-            }
+            res.json({ message: "Huỷ giao dịch thành công", code: code_id })
+
 
         }
         //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua

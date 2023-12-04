@@ -183,13 +183,45 @@ class ProductController {
                 })
                 Promise.all(products)
                     .then(async (productsWithData) => {
-                        const oldCate = await Category.findOne(req.params.id);
-                        if (oldCate.category_parent_id) {
-                            oldCate.category_id = oldCate.category_parent_id;
+                        if (req.query.page) {
+                            const oldCate = await Category.findOne(req.params.id);
+                            if (oldCate.category_parent_id) {
+                                oldCate.category_id = oldCate.category_parent_id;
+                            }
+                            const category = new CategoryResponse(oldCate, CategoryResponse)
+                            await category.initCateChild();
+                            // res.json({ listCate: category, data: productsWithData });
+                            const page = parseInt(req.query.page);
+                            const limit = parseInt(req.query.limit);
+                            // calculating the starting and ending index
+                            const startIndex = (page - 1) * limit;
+                            const endIndex = page * limit;
+                            const results = {};
+                            results.total = Math.ceil(productsWithData.length / limit)
+                            if (endIndex < productsWithData.length) {
+                                results.next = {
+                                    page: page + 1,
+                                    limit: limit
+                                };
+                            }
+                            if (startIndex > 0) {
+                                results.previous = {
+                                    page: page - 1,
+                                    limit: limit
+                                };
+                            }
+                            results.results = productsWithData.slice(startIndex, endIndex);
+                            res.json({ listCate: category, data: results });
                         }
-                        const category = new CategoryResponse(oldCate, CategoryResponse)
-                        await category.initCateChild();
-                        res.json({ listCate: category, data: productsWithData });
+                        else {
+                            const oldCate = await Category.findOne(req.params.id);
+                            if (oldCate.category_parent_id) {
+                                oldCate.category_id = oldCate.category_parent_id;
+                            }
+                            const category = new CategoryResponse(oldCate, CategoryResponse)
+                            await category.initCateChild();
+                            res.json({ listCate: category, data: productsWithData });
+                        }
                     })
                     .catch((error) => {
                         res.status(500).send({ message: "Error fetching product data", error });

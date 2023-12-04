@@ -7,7 +7,7 @@ const DetailProduct = function (detail) {
 DetailProduct.edit = function (id, data, result) {
     try {
         db.query(`UPDATE detail SET ? WHERE product_id=${id}`, data, (err, kq) => {
-            if (err) { console.log(err); result({ message: "Error Database", data: null }) }
+            if (err || kq.changedRows == 0) { console.log(err); result({ message: "Error Database", data: null }) }
             else result({
                 message: "Update Detail Successfull", data: { id: id, ...data }
             })

@@ -36,7 +36,33 @@ class StoreController {
                     await productResponse.initRating();
                     return productResponse;
                 })
-                result.product = await Promise.all(productMap);
+                const resultProduct = await Promise.all(productMap);
+                if (req.query.page) {
+                    const page = parseInt(req.query.page);
+                    const limit = parseInt(req.query.limit);
+                    // calculating the starting and ending index
+                    const startIndex = (page - 1) * limit;
+                    const endIndex = page * limit;
+                    const pagination = {};
+                    pagination.total = Math.ceil(resultProduct.length / limit)
+                    if (endIndex < resultProduct.length) {
+                        pagination.next = {
+                            page: page + 1,
+                            limit: limit
+                        };
+                    }
+                    if (startIndex > 0) {
+                        pagination.previous = {
+                            page: page - 1,
+                            limit: limit
+                        };
+                    }
+                    pagination.results = resultProduct.slice(startIndex, endIndex);
+                    result.products = pagination
+                }
+                else {
+                    result.products = resultProduct;
+                }
                 return result;
 
             })
