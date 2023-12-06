@@ -79,7 +79,7 @@ Category.edit = async function (id, data, result) {
     oldCate.slug = convert(data.name, {
         transformer: (fragments) => fragments.join('-')
     })
-    oldCate.image = data.img;
+    oldCate.image = data.image;
     db.query(`UPDATE category SET ? WHERE category_id=${id}`, oldCate, (err, kq) => {
         if (err) { console.log(err); result(err) }
         else result({ id, ...oldCate });

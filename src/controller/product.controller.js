@@ -127,7 +127,7 @@ class ProductController {
         })
     }
     findByName_product = function (req, res) {
-        Product.findByName(req.params.name, (data) => {
+        Product.findByName(req.query.name, (data) => {
             res.json({ data })
         })
     }
@@ -188,8 +188,7 @@ class ProductController {
                             if (oldCate.category_parent_id) {
                                 oldCate.category_id = oldCate.category_parent_id;
                             }
-                            const category = new CategoryResponse(oldCate, CategoryResponse)
-                            await category.initCateChild();
+
                             // res.json({ listCate: category, data: productsWithData });
                             const page = parseInt(req.query.page);
                             const limit = parseInt(req.query.limit);
@@ -211,6 +210,8 @@ class ProductController {
                                 };
                             }
                             results.results = productsWithData.slice(startIndex, endIndex);
+                            const category = new CategoryResponse(oldCate, req.query, CategoryResponse)
+                            await category.initCateChild();
                             res.json({ listCate: category, data: results });
                         }
                         else {
@@ -218,7 +219,7 @@ class ProductController {
                             if (oldCate.category_parent_id) {
                                 oldCate.category_id = oldCate.category_parent_id;
                             }
-                            const category = new CategoryResponse(oldCate, CategoryResponse)
+                            const category = new CategoryResponse(oldCate, req.query, CategoryResponse)
                             await category.initCateChild();
                             res.json({ listCate: category, data: productsWithData });
                         }
