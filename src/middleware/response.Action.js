@@ -4,4 +4,9 @@ const setStatusReview = (id) => {
         if (err) console.log(err);
     })
 }
-module.exports = { setStatusReview }
+const deleteResponseByAccount = (id) => {
+    db.query(`DELETE FROM response WHERE createBy=${id}`, (err) => {
+        if (err) console.log(err);
+    })
+}
+module.exports = { setStatusReview, deleteResponseByAccount }

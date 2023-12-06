@@ -42,7 +42,14 @@ Product.getName = function (id) {
         })
     })
 }
-
+Product.findByCreateById = function (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM product WHERE createBy=${id}`, (err, data) => {
+            if (err) reject(err)
+            else resolve(data)
+        })
+    })
+}
 Product.getDetails = function (id, result) {
     try {
         db.query(`SELECT * From product WHERE product_id=${id}`, (err, data) => {

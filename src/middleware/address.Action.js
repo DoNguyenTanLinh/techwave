@@ -10,10 +10,9 @@ const setAddress = function (req) {
         else return true
     });
 }
-const deleteAllAddress = function (req, res, next) {
-    db.query(`DELETE FROM address WHERE id_account=${req.params.id}`, (err) => {
+const deleteAllAddress = function (id) {
+    db.query(`DELETE FROM address WHERE id_account=${id}`, (err) => {
         if (err) return next(err);
-        else return next();
     });
 }
 
