@@ -14,7 +14,17 @@ const Bill = function (bill) {
     this.acceptAt = bill.acceptAt;
     this.payment_id = bill.payment_id;
 }
-
+Bill.getStatusByUser = (idUser, idProduct) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM bill as b
+        inner join cart as c on c.cart_id=b.cart_id
+        inner join product as p on p.product_id=c.product_id
+        WHERE b.createBy=${idUser} and p.product_id=${idProduct}`, (err, data) => {
+            if (err) reject(err);
+            else resolve(data.length)
+        })
+    })
+}
 Bill.getBillOfVender = (id, status, result) => {
     db.query(`SELECT bill.* FROM bill
     inner join cart on cart.cart_id=bill.cart_id

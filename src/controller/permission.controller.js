@@ -15,7 +15,6 @@ class PermissionController {
             // console.log(req.body);
             await Permission.edit(req.body)
                 .then((data) => {
-                    console.log(data);
                     res.status(200).json({ message: "Update Permission Successful", data })
                 })
                 .catch(error => {

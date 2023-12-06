@@ -2,11 +2,13 @@ const Account = require("../entity/account.enitty");
 const FavorProduct = require("../entity/favorProduct.entity");
 const Option = require("../entity/option.entity");
 const Product = require("../entity/product.entity");
+const Bill = require("../entity/bill.entity");
 const Review = require("../entity/review.entity");
 const Store = require("../entity/store.entity");
 const { getDetail } = require('../../middleware/detailProduct.Action');
 const Category = require("../entity/category.entity");
 const ProductDetailResponse = function (product) {
+    this.statusReview = null;
     this.product_id = product.product_id;
     this.name = product.name;
     this.rating = null;
@@ -25,7 +27,20 @@ const ProductDetailResponse = function (product) {
     this.category = null;
     this.content = null;
     this.review = null;
-
+    this.initStatusReview = async () => {
+        try {
+            const billCount = await Bill.getStatusByUser(product.idUser, product.product_id)
+            const reviewCount = await Review.getStatusByUser(product.idUser, product.product_id)
+            if (billCount - reviewCount == 1) {
+                this.statusReview = true;
+            }
+            else {
+                this.statusReview = false;
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
     this.init = async function () {
         try {
             this.option = await Option.getAll(product.product_id);

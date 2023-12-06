@@ -29,7 +29,7 @@ const deleteAllProductByAccount = async function (id) {
             deleteDetail(product.product_id);
             deleteAllOption(product.product_id);
             setDeleteProduct(product.product_id);
-            setAllCart(product.product_id);
+            // setAllCart(product.product_id);
             deleteReviewByProduct(product.product_id)
         })
     }

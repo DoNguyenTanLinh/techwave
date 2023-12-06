@@ -21,7 +21,7 @@ class CartController {
                         res.status(500).send("Error fetching cart data");
                     });
             } else {
-                res.json({ messager: "Không có sản phẩm trong giỏ hàng", data: null });
+                res.json({});
             }
 
         })

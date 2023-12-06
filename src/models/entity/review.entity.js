@@ -61,6 +61,15 @@ Review.getByUser = (id, status, result) => {
         result(data)
     })
 }
+Review.getStatusByUser = (idUser, idProduct) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM techwave.review
+        WHERE product_id=${idProduct} and account_id=${idUser}`, (err, data) => {
+            if (err) reject(err)
+            else resolve(data.length)
+        })
+    })
+}
 Review.getByAdmin = (result) => {
     db.query(`SELECT * FROM review`, (err, data) => {
         if (err) console.log(err)

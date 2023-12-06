@@ -112,7 +112,9 @@ class ProductController {
                 product_id: data.product_id,
                 account_id: req.user.id
             }
+            data.data.idUser = req.user.id;
             const product = new ProductDetailResponse(data.data, ProductDetailResponse);
+            await product.initStatusReview()
             await product.init()
             await product.getStatus(fav)
             await product.initSlReview();
@@ -188,11 +190,8 @@ class ProductController {
                             if (oldCate.category_parent_id) {
                                 oldCate.category_id = oldCate.category_parent_id;
                             }
-
-                            // res.json({ listCate: category, data: productsWithData });
                             const page = parseInt(req.query.page);
                             const limit = parseInt(req.query.limit);
-                            // calculating the starting and ending index
                             const startIndex = (page - 1) * limit;
                             const endIndex = page * limit;
                             const results = {};
@@ -210,7 +209,7 @@ class ProductController {
                                 };
                             }
                             results.results = productsWithData.slice(startIndex, endIndex);
-                            const category = new CategoryResponse(oldCate, req.query, CategoryResponse)
+                            const category = new CategoryResponse(oldCate, CategoryResponse)
                             await category.initCateChild();
                             res.json({ listCate: category, data: results });
                         }
@@ -219,7 +218,7 @@ class ProductController {
                             if (oldCate.category_parent_id) {
                                 oldCate.category_id = oldCate.category_parent_id;
                             }
-                            const category = new CategoryResponse(oldCate, req.query, CategoryResponse)
+                            const category = new CategoryResponse(oldCate, CategoryResponse)
                             await category.initCateChild();
                             res.json({ listCate: category, data: productsWithData });
                         }

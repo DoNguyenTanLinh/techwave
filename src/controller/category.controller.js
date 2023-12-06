@@ -42,7 +42,7 @@ class CategoryController {
     }
     getDetail_category = async (req, res) => {
         const oldCate = await Category.findOne(req.params.id);
-        const category = new CategoryResponse(oldCate, CategoryResponse)
+        const category = new CategoryResponse(oldCate, req.query, CategoryResponse)
         await category.initCateChild();
         res.status(200).json(category);
     }
