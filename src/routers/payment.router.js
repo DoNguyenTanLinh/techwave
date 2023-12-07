@@ -7,7 +7,7 @@ const paymentController = require('../controller/payment.controller');
 const BillResquest = require('../models/resquest/bill.resquest');
 const Bill = require('../models/entity/bill.entity');
 const Payment = require('../models/entity/payment.entity');
-
+const { setCartForPayment } = require('../middleware/cart.Action')
 router.get('/', function (req, res, next) {
     res.render('orderlist', { title: 'Danh sách đơn hàng' })
 });
@@ -103,6 +103,7 @@ router.post('/create_payment_url', async function (req, res, next) {
         let carts = req.body.carts;
         data.createBy = req.user.id;
         const results = await Promise.all(carts.map(async (cart) => {
+            setCartForPayment(cart.cart_id);
             data.cart_id = cart.cart_id;
             return Bill.create(data);
         }));
@@ -135,6 +136,7 @@ router.get('/vnpay_return', function (req, res, next) {
     let code_id = vnp_Params['vnp_ResponseCode'];
     if (secureHash === signed) {
         if (code_id == '00') {
+
             Payment.update(vnp_Params['vnp_TxnRef'])
             res.json({ message: 'Giao dịch thành công', code: code_id })
         }

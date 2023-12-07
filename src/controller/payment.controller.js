@@ -1,6 +1,7 @@
 const Bill = require('../models/entity/bill.entity');
 const { Payment } = require('../models/response/payment.response')
 const BillResquest = require('../models/resquest/bill.resquest')
+const { setCartForPayment } = require('../middleware/cart.Action')
 class PaymentController {
     getPaymentMethods = async (req, res) => {
         const cart = new Payment();
@@ -16,6 +17,7 @@ class PaymentController {
         data.payment = 'Thanh toán khi nhận hàng';
         const results = carts.map(async (cart) => {
             data.cart_id = cart.cart_id;
+            setCartForPayment(cart.cart_id)
             return await Bill.create(data)
         })
         Promise.all(results)

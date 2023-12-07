@@ -31,7 +31,8 @@ const ProductDetailResponse = function (product) {
         try {
             const billCount = await Bill.getStatusByUser(product.idUser, product.product_id)
             const reviewCount = await Review.getStatusByUser(product.idUser, product.product_id)
-            if (billCount - reviewCount == 1) {
+            console.log("bill: " + billCount + " review: " + reviewCount)
+            if (billCount - reviewCount >= 1) {
                 this.statusReview = true;
             }
             else {

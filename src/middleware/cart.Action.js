@@ -4,4 +4,9 @@ const setCartByAccount = (id) => {
         if (err) throw err;
     })
 }
-module.exports = { setCartByAccount }
+const setCartForPayment = (id) => {
+    db.query(`UPDATE cart SET status='1' WHERE cart_id=${id}`, (err) => {
+        if (err) throw err;
+    })
+}
+module.exports = { setCartByAccount, setCartForPayment }

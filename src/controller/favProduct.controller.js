@@ -44,7 +44,7 @@ class FavorProductController {
                 })
                 Promise.all(products)
                     .then((productsWithData) => {
-                        res.json(productsWithData);
+                        res.json({ data: productsWithData });
                     })
                     .catch((error) => {
                         console.error(error);

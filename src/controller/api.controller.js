@@ -50,8 +50,14 @@ class ApiController {
     handleRegister = async (req, res) => {
         try {
             req.body.id_permission = 3;
-            let data = await accountController.create_account(req, res);
-            return data;
+            let email = await Account.findByEmail(req.body.email);
+            if (email) {
+                throw new Error("Email already exists")
+            }
+            else {
+                return await accountController.create_account(req, res);
+
+            }
 
         } catch (err) {
             console.log(err);
@@ -64,8 +70,15 @@ class ApiController {
         try {
             req.body.status = '0';
             req.body.id_permission = 2;
-            let data = await accountController.create_account(req, res);
-            return data
+            let email = await Account.findByEmail(req.body.email);
+
+            if (email) {
+                throw new Error("Email already exists")
+            }
+            else {
+                return await accountController.create_account(req, res);
+
+            }
 
         } catch (err) {
             console.log(err);
