@@ -72,7 +72,6 @@ router.post('/create_payment_url', async function (req, res, next) {
         fullname: req.body.fullname,
         phone: req.body.phone,
         address: req.body.address,
-        totalBill: req.body.amount,
         express: req.body.express,
         payment: "VNPAY",
         payment_id: orderId
@@ -105,6 +104,7 @@ router.post('/create_payment_url', async function (req, res, next) {
         const results = await Promise.all(carts.map(async (cart) => {
             setCartForPayment(cart.cart_id);
             data.cart_id = cart.cart_id;
+            data.totalBill = cart.price * cart.quantity;
             return Bill.create(data);
         }));
     } catch (error) {

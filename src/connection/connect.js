@@ -5,6 +5,7 @@ var connection = mysql.createConnection(
         user: "root",
         password: "linhtando20",
         database: 'techwave'
+        // port: 3306
     }
 );
 connection.connect((error) => {

@@ -1,5 +1,5 @@
 const db = require('../../connection/connect');
-const ReviewResponse = require('../response/review.response');
+const { ReviewResponse } = require('../response/review.response');
 const date = require('date-and-time');
 const Review = function (review) {
     this.review_id = review.review_id;

@@ -1,0 +1,22 @@
+services:
+  techwave-be:
+    image: node:18-alpine
+    command: sh -c "npm install && npm start"
+    ports: -3000:3000
+    working-dir: /app
+    volumes: -./:/app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: linhtando
+      MYSQL_DB: techwave
+  mysql:
+    image: mysql:8.0.32
+    volumes: -techwave-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: linhtando
+      MYSQL_DATABASE: techwave
+volumes:
+  techwave-mysql-data:
+
+

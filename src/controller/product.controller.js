@@ -2,9 +2,11 @@ const Product = require("../models/entity/product.entity");
 const { setDetail, getDetail, deleteDetail } = require('../middleware/detailProduct.Action')
 const { deleteAllOption, setAllCart } = require('../middleware/product.Action')
 const { setDeleteProduct } = require('../middleware/favProduct.Action')
+const { deleteReviewByProduct } = require('../middleware/review.Action')
 const { ProductResponse, ProductDetailResponse } = require('../models/response/product.response');
 const CategoryResponse = require('../models/response/category.response')
 const Category = require("../models/entity/category.entity");
+const { await } = require("await");
 class ProductController {
     getAllForUser_product = function (req, res) {
         Product.getAll((data) => {
@@ -39,8 +41,6 @@ class ProductController {
             Product.getForVendor(req.user.id, (data) => {
                 const page = parseInt(req.query.page);
                 const limit = parseInt(req.query.limit);
-
-                // calculating the starting and ending index
                 const startIndex = (page - 1) * limit;
                 const endIndex = page * limit;
                 const results = {};
@@ -157,17 +157,23 @@ class ProductController {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
-    delete_product = function (req, res) {
+    delete_product = async function (req, res) {
         let id = req.params.id;
-        deleteDetail(id);
-        deleteAllOption(id);
-        setDeleteProduct(id);
-        setAllCart(id);
-        Product.delete(id, (data) => {
-            res.json(data);
-        })
+        try {
+            deleteDetail(id);
+            deleteAllOption(id);
+            setDeleteProduct(id);
+            setAllCart(id);
+            await deleteReviewByProduct(id)
+            Product.delete(id, (data) => {
+                res.json(data);
+            })
+        } catch (err) {
+            console.log(err)
+        }
+
     }
-    getByCategory = function (req, res) {
+    getByCategory = function (req, res, next) {
         Product.getByCategory(req.params.id, (data) => {
             if (data) {
                 const products = data.map(async (productData) => {
@@ -185,43 +191,15 @@ class ProductController {
                 })
                 Promise.all(products)
                     .then(async (productsWithData) => {
-                        if (req.query.page) {
-                            const oldCate = await Category.findOne(req.params.id);
-                            if (oldCate.category_parent_id) {
-                                oldCate.category_id = oldCate.category_parent_id;
-                            }
-                            const page = parseInt(req.query.page);
-                            const limit = parseInt(req.query.limit);
-                            const startIndex = (page - 1) * limit;
-                            const endIndex = page * limit;
-                            const results = {};
-                            results.total = Math.ceil(productsWithData.length / limit)
-                            if (endIndex < productsWithData.length) {
-                                results.next = {
-                                    page: page + 1,
-                                    limit: limit
-                                };
-                            }
-                            if (startIndex > 0) {
-                                results.previous = {
-                                    page: page - 1,
-                                    limit: limit
-                                };
-                            }
-                            results.results = productsWithData.slice(startIndex, endIndex);
-                            const category = new CategoryResponse(oldCate, CategoryResponse)
-                            await category.initCateChild();
-                            res.json({ listCate: category, data: results });
+                        const oldCate = await Category.findOne(req.params.id);
+                        if (oldCate.category_parent_id) {
+                            oldCate.category_id = oldCate.category_parent_id;
                         }
-                        else {
-                            const oldCate = await Category.findOne(req.params.id);
-                            if (oldCate.category_parent_id) {
-                                oldCate.category_id = oldCate.category_parent_id;
-                            }
-                            const category = new CategoryResponse(oldCate, CategoryResponse)
-                            await category.initCateChild();
-                            res.json({ listCate: category, data: productsWithData });
-                        }
+                        const category = new CategoryResponse(oldCate, CategoryResponse)
+                        await category.initCateChild();
+                        res.locals.productsWithData = productsWithData;
+                        res.locals.listCate = category;
+                        next();
                     })
                     .catch((error) => {
                         res.status(500).send({ message: "Error fetching product data", error });

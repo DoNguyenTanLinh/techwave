@@ -1,6 +1,7 @@
 const Account = require("../entity/account.enitty");
 
 const ResOfReview = function (response) {
+    this.response_id = response.response_id;
     this.content = response.content;
     this.createAt = response.createAt;
     this.createBy = null;
