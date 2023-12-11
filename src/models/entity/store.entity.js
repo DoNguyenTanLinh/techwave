@@ -94,4 +94,49 @@ Store.getJoin = (id) => {
         })
     })
 }
+Store.getRevenue = (idVendor) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT sum(b.totalBill) as sum FROM techwave.bill as b
+        inner join cart as c on b.cart_id=c.cart_id
+        inner join product as p on c.product_id=p.product_id
+        WHERE p.createBy=${idVendor}`, (err, result) => {
+            if (err) reject(err);
+            else resolve(result[0].sum)
+        })
+    })
+}
+Store.getCountOrders = (idVendor, data) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT count(*) as sum FROM techwave.bill as b
+        inner join cart as c on b.cart_id=c.cart_id
+        inner join product as p on c.product_id=p.product_id
+        WHERE p.createBy=${idVendor} and b.status=${data.status} and MONTH(b.createAt)=${data.month} and YEAR(b.createAt)=${data.year}`, (err, result) => {
+            if (err) reject(err)
+            else resolve(result[0].sum)
+        })
+    });
+}
+Store.getCustomer = (idVendor) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT count(*) FROM techwave.bill as b
+        inner join cart as c on b.cart_id=c.cart_id
+        inner join product as p on c.product_id=p.product_id
+        WHERE p.createBy=${idVendor}
+        Group by b.createBy`, (err, data) => {
+            if (err) reject(err)
+            else resolve(data.length)
+        })
+    });
+}
+Store.getInventory = (idVendor) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT  SUM(DISTINCT p.quantity) as sum FROM techwave.bill as b
+        inner join cart as c on b.cart_id=c.cart_id
+        inner join product as p on c.product_id=p.product_id
+        WHERE p.createBy=${idVendor}`, (err, result) => {
+            if (err) reject(err)
+            else resolve(result[0].sum)
+        })
+    })
+}
 module.exports = Store;

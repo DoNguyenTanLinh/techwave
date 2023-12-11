@@ -3,7 +3,7 @@ const Category = require("../models/entity/category.entity");
 const Product = require("../models/entity/product.entity");
 const Store = require("../models/entity/store.entity");
 const { ProductResponse } = require('../models/response/product.response');
-const { error } = require("jquery");
+const StatisticResponse = require('../models/response/statistics.response');
 const Follow = require("../models/entity/folow.entity");
 class StoreController {
     getStore = async (req, res) => {
@@ -75,6 +75,14 @@ class StoreController {
         })
 
 
+    }
+    getStatistic = async (req, res) => {
+        const statistic = new StatisticResponse(req.user.id, StatisticResponse)
+        await statistic.initRevenue();
+        await statistic.initCustomer();
+        await statistic.initInventory();
+        await statistic.initOrderStatistic();
+        res.json({ statistic })
     }
 }
 module.exports = new StoreController;

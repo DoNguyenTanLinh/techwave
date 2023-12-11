@@ -29,7 +29,6 @@ class ReviewController {
                         .then((reviewData) => {
                             const page = parseInt(req.query.page);
                             const limit = parseInt(req.query.limit);
-                            // calculating the starting and ending index
                             const startIndex = (page - 1) * limit;
                             const endIndex = page * limit;
                             const results = {};

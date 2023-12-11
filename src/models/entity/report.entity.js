@@ -1,6 +1,6 @@
 const db = require('../../connection/connect');
 const date = require('date-and-time');
-const { ReportUserResponse } = require('../response/report.response')
+const { ReportUserResponse, ReportAdminResponse } = require('../response/report.response')
 const Report = function (report) {
     this.report_id = report.report_id;
     this.content = report.content;
@@ -13,7 +13,17 @@ const Report = function (report) {
 Report.getAll = function (status, result) {
     db.query(`SELECT * FROM report WHERE status='${status}'`, (err, data) => {
         if (err) console.log(err);
-        else result(data);
+        else {
+            const adminReports = data.map(async report => {
+                const adminReport = new ReportAdminResponse(report, ReportAdminResponse)
+                await adminReport.initReport()
+                await adminReport.initCreateBy();
+                return adminReport
+            })
+            Promise.all(adminReports)
+                .then((report) => result(report))
+                .catch((err) => console.log(err))
+        };
     })
 }
 Report.getByRole = (id, result) => {

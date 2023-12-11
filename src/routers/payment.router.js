@@ -8,6 +8,8 @@ const BillResquest = require('../models/resquest/bill.resquest');
 const Bill = require('../models/entity/bill.entity');
 const Payment = require('../models/entity/payment.entity');
 const { setCartForPayment } = require('../middleware/cart.Action')
+const { updateQuantityByVNPay } = require('../middleware/product.Action');
+const Cart = require('../models/entity/cart.entity');
 router.get('/', function (req, res, next) {
     res.render('orderlist', { title: 'Danh sách đơn hàng' })
 });
@@ -101,11 +103,13 @@ router.post('/create_payment_url', async function (req, res, next) {
         const data = new BillResquest(bill, BillResquest);
         let carts = req.body.carts;
         data.createBy = req.user.id;
-        const results = await Promise.all(carts.map(async (cart) => {
+        const results = await Promise.all(carts.map(async (cartData) => {
+            const cart = await Cart.findById(cartData.cart_id);
             setCartForPayment(cart.cart_id);
             data.cart_id = cart.cart_id;
             data.totalBill = cart.price * cart.quantity;
-            return Bill.create(data);
+            const bill = Bill.create(data);
+            return { cart, bill }
         }));
     } catch (error) {
         console.error(error);
@@ -136,7 +140,7 @@ router.get('/vnpay_return', function (req, res, next) {
     let code_id = vnp_Params['vnp_ResponseCode'];
     if (secureHash === signed) {
         if (code_id == '00') {
-
+            updateQuantityByVNPay(vnp_Params['vnp_TxnRef'])
             Payment.update(vnp_Params['vnp_TxnRef'])
             res.json({ message: 'Giao dịch thành công', code: code_id })
         }
