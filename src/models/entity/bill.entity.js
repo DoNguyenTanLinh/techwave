@@ -29,19 +29,19 @@ Bill.getBillOfVender = (id, status, result) => {
     db.query(`SELECT bill.* FROM bill
     inner join cart on cart.cart_id=bill.cart_id
     inner join product on cart.product_id=product.product_id
-    WHERE product.createBy=${id} and bill.status='${status}'`, (err, data) => {
+    WHERE product.createBy=${id} and bill.status='${status}' ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)
     })
 }
 Bill.getBillOfUser = (id, result) => {
-    db.query(`SELECT * FROM bill WHERE status!='2' and createBy=${id}`, (err, data) => {
+    db.query(`SELECT * FROM bill WHERE status!='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)
     })
 }
 Bill.getBillReceivedOfUser = (id, result) => {
-    db.query(`SELECT * FROM bill WHERE status='2' and createBy=${id}`, (err, data) => {
+    db.query(`SELECT * FROM bill WHERE status='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)
     })

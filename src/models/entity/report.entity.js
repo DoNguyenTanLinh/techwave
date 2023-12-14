@@ -11,7 +11,7 @@ const Report = function (report) {
     this.picture = report.picture;
 }
 Report.getAll = function (status, result) {
-    db.query(`SELECT * FROM report WHERE status='${status}'`, (err, data) => {
+    db.query(`SELECT * FROM report WHERE status='${status}' ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else {
             const adminReports = data.map(async report => {
@@ -27,7 +27,7 @@ Report.getAll = function (status, result) {
     })
 }
 Report.getByRole = (id, result) => {
-    db.query(`SELECT * FROM report WHERE createBy=${id}`, (err, data) => {
+    db.query(`SELECT * FROM report WHERE createBy=${id} ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err)
         else {
             const userReports = data.map(async (report) => {

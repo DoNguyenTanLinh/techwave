@@ -186,4 +186,23 @@ const ProductResponse = function (product) {
         }
     }
 }
-module.exports = { ProductDetailResponse, ProductResponse };
+const ProductResponseForVendor = function (product) {
+    this.product_id = product.product_id;
+    this.name = product.name;
+    this.quantity = product.quantity;
+    this.origin = product.origin;
+    this.price = product.price;
+    this.promotional_price = product.promotional_price;
+    this.category = null;
+    this.image = product.image;
+    this.createAt = product.createAt;
+    this.modifiedAt = product.modifiedAt;
+    this.initCategory = async function () {
+        try {
+            this.category = await Category.findOne(product.category_id);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
+module.exports = { ProductDetailResponse, ProductResponse, ProductResponseForVendor };

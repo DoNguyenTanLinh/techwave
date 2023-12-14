@@ -21,9 +21,11 @@ Product.getAll = function (result) {
     })
 }
 Product.getForVendor = function (id, result) {
-    db.query(`	SELECT * FROM product WHERE createBy=${id}`, (err, data) => {
+    db.query(`SELECT * FROM product WHERE createBy=${id} ORDER BY createAt DESC`, (err, data) => {
         if (err) result(null)
-        else result(data)
+        else {
+            result(data)
+        }
     })
 }
 Product.getOne = function (id) {
@@ -36,7 +38,7 @@ Product.getOne = function (id) {
 }
 Product.getName = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT product_id,name From product WHERE product_id=${id}`, (err, data) => {
+        db.query(`SELECT product_id,name,image From product WHERE product_id=${id}`, (err, data) => {
             if (err || data.length == 0) resolve(null)
             else resolve(data[0])
         })
@@ -81,12 +83,12 @@ Product.getRating = (id) => {
         })
     })
 }
-Product.findHaveSales = function (id) {
+Product.findHaveSales = (id) => {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM bill inner join cart on bill.cart_id=cart.cart_id
         inner join product on cart.product_id=product.product_id
         WHERE product.product_id=${id} and bill.status=2`, (err, data) => {
-            if (err) console.log(err);
+            if (err) reject(err);
             else resolve(data.length)
         })
     })
@@ -149,7 +151,7 @@ Product.getByCategory = function (id, result) {
         db.query(`SELECT p.* FROM product as p
         inner join category as c on p.category_id=c.category_id
         WHERE p.category_id=${id} or c.category_parent_id=${id}`, (err, data) => {
-            if (err || data.length < 1) { console.log(err); result(null) }
+            if (err) { console.log(err); }
             else result(data)
         })
     } catch (err) {
