@@ -12,7 +12,7 @@ Follow.get = function (id, result) {
 }
 Follow.getFolowStore = (id) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM techwave.folow WHERE vender_id=${id}`, (err, data) => {
+        db.query(`SELECT * FROM folow WHERE vender_id=${id}`, (err, data) => {
             if (err) reject(err);
             else resolve(data.length);
         })
@@ -20,7 +20,7 @@ Follow.getFolowStore = (id) => {
 }
 Follow.findFollow = function (idVendor, idUser) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM techwave.folow WHERE vender_id=${idVendor} and user_id=${idUser}`, (err, data) => {
+        db.query(`SELECT * FROM folow WHERE vender_id=${idVendor} and user_id=${idUser}`, (err, data) => {
             if (err) reject(err);
             if (data.length == 0) resolve(false)
             else resolve(true);

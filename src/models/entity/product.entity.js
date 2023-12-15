@@ -101,7 +101,7 @@ Product.findByName = function (name, result) {
 }
 Product.getQuantity = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM techwave.product WHERE createBy=${id}`, (err, data) => {
+        db.query(`SELECT * FROM product WHERE createBy=${id}`, (err, data) => {
             if (err) reject(err)
             else resolve(data.length)
         })
