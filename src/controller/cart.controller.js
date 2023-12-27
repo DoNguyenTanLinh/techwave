@@ -49,7 +49,7 @@ class CartController {
             })
         }
     }
-    update_cart = (req, res) => {
+    update_cart = async (req, res) => {
         Cart.updateQuantity(req.params.id, req.body, (kq) => {
             res.json(kq);
         })

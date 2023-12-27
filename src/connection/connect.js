@@ -1,10 +1,15 @@
 var mysql = require('mysql2');
 var connection = mysql.createConnection(
     {
-        host: "sql10.freesqldatabase.com",
-        user: "sql10670611",
-        password: "wRlttwNYDt",
-        database: 'sql10670611',
+        // host: "sql10.freesqldatabase.com",
+        // user: "sql10670611",
+        // password: "wRlttwNYDt",
+        // database: 'sql10670611',
+        // port: 3306
+        host: "localhost",
+        user: "root",
+        password: "linhtando20",
+        database: 'techwave',
         port: 3306
     }
 );

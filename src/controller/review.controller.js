@@ -69,7 +69,18 @@ class ReviewController {
             }
         } else if (req.user.groupWithRole.RoleName === 'USER') {
             Review.getByUser(req.user.id, req.query.status, (data) => {
-                res.json(data)
+                const reviews = data.map(async reviewWithData => {
+                    const review = new ReviewForAdmin(reviewWithData, ReviewForAdmin)
+                    await review.initResCreateBy();
+                    await review.initProduct();
+                    return review
+
+                })
+                Promise.all(reviews)
+                    .then((reviewData) => {
+                        res.json(reviewData);
+                    })
+                    .catch(err => console.log(err));
             })
         } else if (req.user.groupWithRole.RoleName === 'ADMIN') {
             if (req.query.page) {

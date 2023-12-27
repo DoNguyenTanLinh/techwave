@@ -15,7 +15,7 @@ Option.getAll = function (id) {
 }
 Option.getName = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT name,image FROM options WHERE option_id=${id}`, (err, data) => {
+        db.query(`SELECT option_id,name,image FROM options WHERE option_id=${id}`, (err, data) => {
             if (err || data.length == 0) {
                 resolve(null)
             }

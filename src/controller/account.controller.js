@@ -56,6 +56,34 @@ class AccountController {
             res.json({ message: "Error", err })
         }
     }
+    search_accounts = function (req, res) {
+        Account.search(req.query.require, (data) => {
+            if (req.query.page) {
+                const page = parseInt(req.query.page);
+                const limit = parseInt(req.query.limit);
+                const startIndex = (page - 1) * limit;
+                const endIndex = page * limit;
+                const results = {};
+                results.total = Math.ceil(data.length / limit)
+                if (endIndex < data.length) {
+                    results.next = {
+                        page: page + 1,
+                        limit: limit
+                    };
+                }
+                if (startIndex > 0) {
+                    results.previous = {
+                        page: page - 1,
+                        limit: limit
+                    };
+                }
+                results.results = data.slice(startIndex, endIndex);
+                res.json(results);
+            } else {
+                res.json(data);
+            }
+        })
+    }
     create_account = async function (req, res) {
         if (!req.body.status) req.body.status = '1';
         let email = await Account.findByEmail(req.body.email);

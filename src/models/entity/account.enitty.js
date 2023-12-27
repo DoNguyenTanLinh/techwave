@@ -16,6 +16,12 @@ const Account = function (acount) {
     this.creatAt = acount.creatAt;
     this.modifiedAt = acount.modifiedAt;
 }
+Account.search = function (require, results) {
+    db.query(`SELECT * FROM techwave.account WHERE fullname like '%${require}%' or email like '%${require}%'`, (err, data) => {
+        if (err) console.log(err);
+        else results(data)
+    })
+}
 Account.getPermission = (id) => {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM user_permission where permission_id=${id}`, function (err, result) {
@@ -95,6 +101,7 @@ Account.findOne = function (email, password, result) {
         });
     });
 }
+
 Account.create = function (data, result) {
     const now = new Date();
     data.createAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
