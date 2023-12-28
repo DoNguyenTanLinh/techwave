@@ -129,7 +129,7 @@ Account.softdelete = function (id, result) {
 }
 Account.remove = function (id, result) {
     db.query(`Delete From account Where account_id=${id}`, function (err) {
-        if (err) throw result(err);
+        if (err) console.log(err);
         else result("Xóa thành công id: " + id);
     });
 }

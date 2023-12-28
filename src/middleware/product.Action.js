@@ -63,8 +63,11 @@ const deleteAllProductByAccount = async function (id) {
             deleteReviewByProduct(product.product_id)
         })
     }
-    db.query(`DELETE FROM product WHERE createBy=${id}`, (err) => {
-        if (err) console.log(err)
-    })
+
+    try {
+        db.query(`DELETE FROM product WHERE createBy=${id}`)
+    } catch (err) {
+        console.log(err)
+    }
 }
 module.exports = { deleteAllOption, setAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay }
