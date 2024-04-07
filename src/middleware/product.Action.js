@@ -6,6 +6,7 @@ const { setDeleteProduct } = require('./favProduct.Action')
 const { deleteReviewByProduct } = require('./review.Action');
 
 
+
 const updateQuantity = function (cartId) {
     db.query(`SELECT p.quantity as productQuantity,c.* FROM cart as c
     inner join product as p on p.product_id=c.product_id
@@ -15,7 +16,7 @@ const updateQuantity = function (cartId) {
             const result = data[0];
             let quantity = result.productQuantity - result.quantity;
             db.query(`UPDATE product SET quantity=${quantity} WHERE product_id=${result.product_id}`, (err) => {
-                if (err) reject(err)
+                if (err) console.log(err)
             })
         }
     })
@@ -30,7 +31,7 @@ const updateQuantityByVNPay = function (paymentId) {
             data.map(cart => {
                 let quantity = cart.productQuantity - cart.quantity;
                 db.query(`UPDATE product SET quantity=${quantity} WHERE product_id=${cart.product_id}`, (err) => {
-                    if (err) reject(err)
+                    if (err) console.log(err)
                 })
             })
         }
@@ -47,10 +48,22 @@ const deleteAllOption = function (id) {
     }
 }
 
-const setAllCart = function (id) {
-    db.query(`UPDATE cart set product_id=null WHERE product_id=${id}`, (err) => {
-        if (err) console.log(err)
-    })
+const deleteAllCart = async function (id) {
+    try {
+        const cartIds = await db.query("SELECT cart_id FROM cart WHERE product_id= ?", [id]);
+        await db.beginTransaction();
+        await Promise.all(cartIds.map(cartId => {
+            db.query("DELETE FROM bill WHERE cart_id = ?", [cartId.cart_id])
+        }
+        ));
+        await db.query("DELETE FROM cart WHERE product_id = ?", [id]);
+        await db.commit();
+    }
+    catch (err) {
+        await db.rollback();
+        console.error(err);
+        throw err;
+    }
 }
 const deleteAllProductByAccount = async function (id) {
     const products = await Product.findByCreateById(id)
@@ -70,4 +83,4 @@ const deleteAllProductByAccount = async function (id) {
         console.log(err)
     }
 }
-module.exports = { deleteAllOption, setAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay }
+module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay }

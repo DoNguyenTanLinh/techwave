@@ -60,7 +60,6 @@ Account.getAllAccounts = function (status, result) {
         if (err) throw result(err);
         else result(account);
     });
-
 }
 Account.findByEmail = function (email, result) {
     return new Promise((resolve, reject) => {

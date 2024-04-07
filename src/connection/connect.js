@@ -1,4 +1,5 @@
 var mysql = require('mysql2');
+const util = require('util');
 var connection = mysql.createConnection(
     {
         // host: "sql10.freesqldatabase.com",
@@ -9,8 +10,8 @@ var connection = mysql.createConnection(
         host: "localhost",
         user: "root",
         password: "linhtando20",
-        database: 'techwave',
-        port: 3306
+        database: 'techwave'
+        // port: 3306
     }
 );
 connection.connect((error) => {
@@ -18,9 +19,9 @@ connection.connect((error) => {
         console.error('Lỗi kết nối:', error);
     } else {
         console.log('Kết nối thành công!');
-        // Điều gì đó ở đây...
     }
 });
+connection.query = util.promisify(connection.query);
 // connection.query(
 //     'SELECT * FROM account',
 //     function(err, results, fields) {

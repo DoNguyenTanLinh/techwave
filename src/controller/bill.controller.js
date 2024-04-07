@@ -72,7 +72,7 @@ class BillController {
         })
     }
     getforUser_bill = (req, res) => {
-        Bill.getBillOfUser(req.user.id, (data) => {
+        Bill.getBillOfUser(req.user.id, req.query.status, (data) => {
             if (data) {
                 const bills = data.map(async (billData) => {
                     const bill = new BillResponse(billData);

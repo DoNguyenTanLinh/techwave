@@ -34,11 +34,19 @@ Bill.getBillOfVender = (id, status, result) => {
         else result(data)
     })
 }
-Bill.getBillOfUser = (id, result) => {
-    db.query(`SELECT * FROM bill WHERE status!='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
-        if (err) console.log(err);
-        else result(data)
-    })
+Bill.getBillOfUser = (id, status, result) => {
+    if (status) {
+        db.query(`SELECT * FROM bill WHERE status=${status} and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
+            if (err) console.log(err);
+            else result(data)
+        })
+    } else {
+        db.query(`SELECT * FROM bill WHERE status!='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
+            if (err) console.log(err);
+            else result(data)
+        })
+    }
+
 }
 Bill.getBillReceivedOfUser = (id, result) => {
     db.query(`SELECT * FROM bill WHERE status='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {

@@ -4,6 +4,7 @@ const categoryController = require('../controller/category.controller');
 const storeController = require('../controller/store.controller');
 const favProductController = require('../controller/favProduct.controller');
 const uploadCloud = require('../service/uploadFileService');
+const discountRouter = require('./discount.router');
 const home = express.Router();
 
 home.post('/product/favor/:id', favProductController.add_fav_product)
@@ -38,6 +39,7 @@ home.get('/category/:id', productController.getByCategory, (req, res) => {
         res.json({ listCate: listCate, data: productsWithData });
     }
 })
+home.use('/discount', discountRouter);
 home.get('/category', categoryController.getAll_category)
 home.get('/store/:id', storeController.getStore)
 home.get('/search', productController.findByName_product)

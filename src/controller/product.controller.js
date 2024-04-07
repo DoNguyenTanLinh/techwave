@@ -1,6 +1,6 @@
 const Product = require("../models/entity/product.entity");
 const { setDetail, getDetail, deleteDetail } = require('../middleware/detailProduct.Action')
-const { deleteAllOption, setAllCart } = require('../middleware/product.Action')
+const { deleteAllOption, deleteAllCart } = require('../middleware/product.Action')
 const { setDeleteProduct } = require('../middleware/favProduct.Action')
 const { deleteReviewByProduct } = require('../middleware/review.Action')
 const { ProductResponse, ProductDetailResponse, ProductResponseForVendor } = require('../models/response/product.response');
@@ -224,7 +224,7 @@ class ProductController {
             deleteDetail(id);
             deleteAllOption(id);
             setDeleteProduct(id);
-            setAllCart(id);
+            await deleteAllCart(id);
             await deleteReviewByProduct(id)
             Product.delete(id, (data) => {
                 res.json(data);
