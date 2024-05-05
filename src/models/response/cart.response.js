@@ -1,3 +1,4 @@
+const Account = require('../entity/account.enitty');
 const Option = require('../entity/option.entity');
 const Product = require('../entity/product.entity');
 const CartResponse = function (cart) {
@@ -8,9 +9,16 @@ const CartResponse = function (cart) {
     this.price = cart.price;
     this.account_id = cart.account_id;
     this.status = cart.status;
+    this.store_name = null;
     this.init = async function () {
         try {
             this.product = await Product.getOne(cart.product_id);
+            let account = await Account.getById(this.product.createBy);
+            this.store = {
+                account_id: account.account_id,
+                username: account.username,
+                picture: account.avatar
+            }
         } catch (error) {
             console.error(error);
         }

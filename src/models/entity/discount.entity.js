@@ -1,5 +1,4 @@
 const db = require('../../connection/connect');
-
 const Discount = function (discount) {
     this.discount_id = discount.discount_id;
     this.quantity = discount.quantity;
@@ -10,11 +9,11 @@ const Discount = function (discount) {
     this.mdPrice = discount.mdPrice;
     this.vendor_id = discount.vendor_id;
 }
-Discount.getDiscountPayment = (id_product, result) => {
-    if (id_product != 0) {
-        db.query(`SELECT D.* FROM discount as D
-        inner join product as P on P.createBy = D.vendor_id
-        WHERE P.product_id=${id_product}`, (err, data) => {
+Discount.getDiscount = (idPermission, idUser, result) => {
+
+    if (idPermission == 2) {
+        db.query(`SELECT * FROM discount
+        where vendor_id=${idUser}`, (err, data) => {
             if (err) console.error(err);
             else result({ data: data });
         })

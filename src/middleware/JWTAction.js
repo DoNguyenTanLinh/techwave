@@ -169,6 +169,7 @@ const checkUserAction = (req, res, next) => {
             else if (oldUrl === 'statistic') next();
             // else if (oldUrl === 'reason') next();
             else if (oldUrl === 'response') next();
+            else if (oldUrl === 'discount') next();
             else if (oldUrl === 'favor-product') next();
             else if (oldUrl === 'cart') next();
             else if (oldUrl === 'report') {

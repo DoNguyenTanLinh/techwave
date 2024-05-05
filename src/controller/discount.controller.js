@@ -3,7 +3,7 @@ const DiscountUser = require("../models/entity/discount_user.entity");
 
 class DiscountController {
     get_Discount_Payment = (req, res) => {
-        Discount.getDiscountPayment(req.query.id, result => {
+        Discount.getDiscount(req.user.groupWithRole.permission_id, req.user.id, result => {
             res.json(result);
         })
     }

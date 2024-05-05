@@ -9,7 +9,8 @@ const paymentController = require('../controller/payment.controller')
 const reportRouter = require('./report.router');
 const paymentRouter = require('./payment.router');
 const reviewRouter = require('./review.router');
-
+const discountRouter = require('./discount.router');
+user.use('/discount', discountRouter);
 user.use('/account', accountRouter);
 user.use('/cart', cartRouter)
 user.use('/bill', billUserRouter)
