@@ -55,6 +55,7 @@ const checkUserJWT = async (req, res, next) => {
     }
     else {
         // if (nonSecure.includes(req.api)) return next();
+
         if (req.path.split('/')[4] === 'vnpay_return') next();
         else if (abc.includes(req.api)) {
             console.log("Authentication");
@@ -131,7 +132,12 @@ const checkUserAction = (req, res, next) => {
                 remove: (req.method === 'DELETE' && roles.Category == process.env.FULL_ACCESS),
                 view: (req.method === 'GET' && roles.Category != process.env.ACCESS_DENIED)
             }
-
+            let discount = {
+                create: (req.method === 'POST' && (roles.RoleName == 'ADMIN' || roles.RoleName == 'VENDOR')),
+                modify: (req.method === 'PUT' && (roles.RoleName == 'ADMIN' || roles.RoleName == 'VENDOR')),
+                remove: (req.method === 'DELETE' && (roles.RoleName == 'ADMIN' || roles.RoleName == 'VENDOR')),
+                view: (req.method === 'GET')
+            }
             let productAccount = {
                 create: (req.method === 'POST' && (roles.Product == process.env.FULL_ACCESS || roles.Product == process.env.CREATE)),
                 modify: (req.method === 'PUT' && (roles.Product == process.env.FULL_ACCESS || roles.Product == process.env.MODIFY)),
@@ -169,11 +175,19 @@ const checkUserAction = (req, res, next) => {
             else if (oldUrl === 'statistic') next();
             // else if (oldUrl === 'reason') next();
             else if (oldUrl === 'response') next();
-            else if (oldUrl === 'discount') next();
             else if (oldUrl === 'favor-product') next();
             else if (oldUrl === 'cart') next();
             else if (oldUrl === 'report') {
                 if (report.create || report.modify || report.remove || report.view) next();
+                else {
+                    return res.status(403).json({
+                        message: "You dont have permission to access this resource...",
+                        data: null
+                    })
+                }
+            }
+            else if (oldUrl === 'discount') {
+                if (discount.create || discount.modify || discount.remove || discount.view) next();
                 else {
                     return res.status(403).json({
                         message: "You dont have permission to access this resource...",

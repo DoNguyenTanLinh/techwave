@@ -6,27 +6,25 @@ const DiscountUser = function (discountUser) {
     this.dsc_id = discountUser.dsc_id;
     this.status = discountUser.status;
 }
-DiscountUser.insertDiscount = (dscId, userID, role) => {
-    if (role == 2) {
-        try {
-            db.query(`INSERT INTO discount_user (user_id, dsc_id,status)
-            SELECT user_id ,${dscId},1
-            FROM folow
-            WHERE vender_id=${userID}`)
-        } catch (err) {
-            console.error(err);
-        }
-    }
-    else if (role == 1) {
-        try {
-            db.query(`INSERT INTO discount_user (user_id, dsc_id,status)
+DiscountUser.insertDiscount = (dscId) => {
+    try {
+        db.query(`INSERT INTO discount_user (user_id, dsc_id,status)
             SELECT account_id ,${dscId},1
             FROM account
             WHERE id_permission=3`)
-        } catch (err) {
-            console.error(err);
-        }
+    } catch (err) {
+        console.error(err);
     }
 
 }
+DiscountUser.deleteDiscountByAdmin = (dscId) => {
+    return new Promise((resolve, reject) => {
+        db.query(`DELETE FROM discount_user where dsc_id=${dscId}`, (err) => {
+            if (err) reject(err)
+            else resolve();
+        })
+    })
+
+}
+
 module.exports = DiscountUser;

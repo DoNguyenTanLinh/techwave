@@ -1,8 +1,9 @@
+const { default: tr } = require("date-and-time/locale/tr");
 const Discount = require("../models/entity/discount.entity");
 const DiscountUser = require("../models/entity/discount_user.entity");
 
 class DiscountController {
-    get_Discount_Payment = (req, res) => {
+    get_Discount = (req, res) => {
         Discount.getDiscount(req.user.groupWithRole.permission_id, req.user.id, result => {
             res.json(result);
         })
@@ -22,8 +23,25 @@ class DiscountController {
         } catch (err) {
             console.error(err);
         }
-        DiscountUser.insertDiscount(result.discount_id, req.user.id, req.user.groupWithRole.permission_id);
+        DiscountUser.insertDiscount(result.discount_id);
         res.json({ message: "successfully", data: result });
+    }
+    edit_Discount = (req, res) => {
+        Discount.updateDiscount(req.params.id, req.body, result => {
+            res.json(result);
+        })
+    }
+    delete_Discount = async (req, res) => {
+        if (req.user.groupWithRole.permission_id == 1) {
+            try {
+                await DiscountUser.deleteDiscountByAdmin(req.params.id);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        Discount.deleteDiscount(req.params.id, result => {
+            res.json(result);
+        })
     }
 }
 

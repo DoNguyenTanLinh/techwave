@@ -17,7 +17,15 @@ Discount.getDiscount = (idPermission, idUser, result) => {
             if (err) console.error(err);
             else result({ data: data });
         })
-    } else {
+    } else if (idPermission == 3) {
+        db.query(`SELECT D.* FROM discount as D
+        inner join discount_user as DS on DS.dsc_id=D.discount_id
+        WHERE DS.user_id=${idUser}`, (err, data) => {
+            if (err) console.error(err);
+            else result({ data: data });
+        })
+    }
+    else {
         db.query(`SELECT D.* FROM discount as D
         inner join account as A on A.account_id=D.vendor_id
         WHERE A.id_permission=1`, (err, data) => {
@@ -32,6 +40,18 @@ Discount.createDiscount = (data) => {
             if (err) reject(err)
             else resolve({ discount_id: kq.insertId, ...kq })
         })
+    })
+}
+Discount.updateDiscount = (id_dsc, data, result) => {
+    db.query(`UPDATE discount SET ? WHERE discount_id=${id_dsc}`, data, (err, kq) => {
+        if (err) console.log(err)
+        else result({ message: "success", data: "Sửa mã giảm giá thành công" })
+    })
+}
+Discount.deleteDiscount = (id_dsc, result) => {
+    db.query(`DELETE FROM discount WHERE discount_id=${id_dsc}`, (err) => {
+        if (err) console.log(err)
+        else result({ message: "success", data: `Xoá mã giảm giá ${id_dsc} thành công ` })
     })
 }
 module.exports = Discount;

@@ -5,7 +5,6 @@ const Account = function (acount) {
     this.fullname = acount.fullname;
     this.email = acount.email;
     this.phone = acount.phone;
-    this.address = this.address;
     this.dob = date.format(acount.dob, 'YYYY/MM/DD');
     this.gender = acount.gender;
     this.username = acount.username;
@@ -40,14 +39,14 @@ Account.getPermission = (id) => {
 
 Account.getAddressByProduct = (product_id) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT account.address FROM product inner join account on product.createBy=account.account_id
-        WHERE product.product_id=${product_id}`, function (err, result) {
+        db.query(`SELECT address.province FROM product inner join address on product.createBy=address.id_account
+        WHERE product.product_id=${product_id} and address.status='1'`, function (err, result) {
             if (err) {
                 console.log(err);
                 reject(err);
             } else {
                 if (result.length > 0) {
-                    resolve(result[0].address);
+                    resolve(result[0].province);
                 } else {
                     resolve(null);
                 }

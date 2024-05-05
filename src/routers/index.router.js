@@ -16,7 +16,7 @@ function router(app) {
     app.use('/api/admin', adminRouter);
     app.use('/api/vendor', vendorRouter);
     app.use('/api/user', userRouter);
-    app.use('/api', checkUserJWT, (req, res, next) => {
+    app.use('/api', (req, res, next) => {
         if (!req.user) {
             req.user = {};
             req.user.id = null;
