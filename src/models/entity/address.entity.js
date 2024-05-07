@@ -1,18 +1,21 @@
 const db = require('../../connection/connect');
 const Address = function (address) {
     this.add_id = address.add_id;
-    this.diachi = address.diachi;
+    this.province = address.province;
+    this.district = address.district;
+    this.ward = address.ward;
+    this.address = address.address;
     this.id_account = address.id_account;
     this.status = address.status;
 }
 Address.getAddress = function (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT diachi,status FROM address where id_account=${id} and status='1'`, function (err, result) {
+        db.query(`SELECT * FROM address where id_account=${id} and status='1'`, function (err, result) {
             if (err) {
                 reject(err);
             } else {
                 if (result.length > 0) {
-                    resolve(result[0].diachi);
+                    resolve(result[0]);
                 } else {
                     resolve(null);
                 }
@@ -37,7 +40,7 @@ Address.getAllAddress = function (id) {
 };
 Address.update = function (id, data) {
     return new Promise((resolve, reject) => {
-        db.query(`UPDATE address SET ? Where add_id=${id}`, data, function (err) {
+        db.query(`UPDATE address SET ? Where id_account=${id}`, data, function (err) {
             if (err) throw reject(err);
             else resolve({ id: id, ...data });
         });
@@ -66,13 +69,13 @@ Address.setDefault = async function (id, id_user, result) {
         else result("Đã đặt thành địa chỉ mặc định");
     });
 }
-Address.create = function (data, result) {
-    db.query(`INSERT INTO address SET ?`, data, function (err, address) {
-        if (err) {
-            console.log(err);
-            result(null);
-        }
-        else result("Thêm địa chỉ thành công");
-    });
+Address.create = function (data) {
+    return new Promise((resolve, reject) => {
+        db.query(`INSERT INTO address SET ?`, data, function (err, result) {
+            if (err) reject(err)
+            else resolve({ id: result.insertId, ...data })
+        });
+    })
+
 }
 module.exports = Address;

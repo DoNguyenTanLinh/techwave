@@ -174,6 +174,7 @@ const ProductResponse = function (product) {
     this.initPlace = async () => {
         try {
             this.place = await Account.getAddressByProduct(product.product_id)
+
         } catch (error) {
             console.log(error);
         }

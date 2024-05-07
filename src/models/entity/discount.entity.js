@@ -9,6 +9,40 @@ const Discount = function (discount) {
     this.mdPrice = discount.mdPrice;
     this.vendor_id = discount.vendor_id;
 }
+Discount.getDiscountShopAuto = (idShop, price, result) => {
+    db.query(`SELECT derived.discount_id,
+    CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 
+    derived.discount
+    FROM (
+        SELECT 
+            (${price} * dc.discount * 0.01 - dc.mdPrice) AS price,
+            (${price} * dc.discount * 0.01) AS price2, 
+            dc.* 
+        FROM discount AS dc 
+        WHERE dc.vendor_id = ${idShop} and minPrice<=${price}
+    ) AS derived 
+    ORDER BY result desc`, (err, data) => {
+        if (err) console.log(err);
+        else result(data[0])
+    })
+}
+Discount.getDiscountShipAuto = (idUser, price, result) => {
+    db.query(`SELECT derived.discount_id,
+    CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 
+    derived.discount
+    FROM (
+        SELECT 
+            (${price} * dc.discount * 0.01 - dc.mdPrice) AS price,
+            (${price} * dc.discount * 0.01) AS price2, 
+            dc.* 
+        FROM discount AS dc inner join discount_user as dsu
+        on dc.discount_id=dsu.dsc_id where user_id=${idUser}
+    ) AS derived 
+    ORDER BY result desc`, (err, data) => {
+        if (err) console.log(err);
+        else result(data[0])
+    })
+}
 Discount.getDiscount = (idPermission, idUser, result) => {
 
     if (idPermission == 2) {
@@ -38,7 +72,7 @@ Discount.createDiscount = (data) => {
     return new Promise((resolve, reject) => {
         db.query(`INSERT INTO discount SET ?`, data, (err, kq) => {
             if (err) reject(err)
-            else resolve({ discount_id: kq.insertId, ...kq })
+            else resolve({ discount_id: kq.insertId, ...data })
         })
     })
 }

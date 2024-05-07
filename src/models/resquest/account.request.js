@@ -1,13 +1,12 @@
 const ModifyAccountResquest = function (acount, data) {
-    acount.fullname = data.fullname;
-    acount.email = data.email;
-    acount.phone = data.phone;
-    acount.dob = data.dob;
-    acount.gender = data.gender;
-    acount.username = data.username;
-    acount.password = data.password;
-    acount.address = data.address;
-    acount.avatar = data.avatar;
+    if (data.fullname) acount.fullname = data.fullname;
+    if (data.email) acount.email = data.email;
+    if (data.phone) acount.phone = data.phone;
+    if (data.dob) acount.dob = data.dob;
+    if (data.gender) acount.gender = data.gender;
+    if (data.username) acount.username = data.username;
+    if (data.password) acount.password = data.password;
+    if (data.avatar) acount.avatar = data.avatar;
 }
 
 

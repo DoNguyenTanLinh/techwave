@@ -1,12 +1,14 @@
 const Account = require('../models/entity/account.enitty');
 const Address = require('../models/entity/address.entity');
-// const { ModifyAccountResquest } = require('../models/resquest/account.request');
+const { ModifyAccountResquest } = require('../models/resquest/account.request');
 const { setAddress } = require('../middleware/address.Action');
 const { deleteAllfav } = require('../middleware/favProduct.Action');
 const { transporter } = require('../service/SendMail')
 const joi = require('joi');
 const ejs = require('ejs');
 const fs = require('fs');
+const { add } = require('../models/entity/folow.entity');
+const AccountDetailResponse = require('../models/response/account.response');
 class AccountController {
     get_All = function (req, res) {
         if (req.query.page) {
@@ -43,7 +45,9 @@ class AccountController {
     get_Detail = async function (req, res) {
         try {
             let data = await Account.getById(req.user.id)
-            res.json(data);
+            const accDetail = new AccountDetailResponse(data);
+            await accDetail.init();
+            res.json(accDetail);
         } catch (err) {
             res.json({ message: "Error", err })
         }
@@ -94,18 +98,61 @@ class AccountController {
             })
         }
         else {
-            Account.create(req.body, (data) => res.json(data))
+            const accData = {
+                fullname: req.body.fullname,
+                email: req.body.email,
+                phone: req.body.phone,
+                dob: req.body.dob,
+                gender: req.body.gender,
+                username: req.body.username,
+                password: req.body.password,
+                id_permission: req.body.id_permission,
+                avatar: req.body.avatar,
+                status: req.body.status
+
+            }
+
+            Account.create(accData, async (data) => {
+
+                const addData = {
+                    province: req.body.province,
+                    district: req.body.district,
+                    ward: req.body.ward,
+                    address: req.body.address,
+                    id_account: data.data.id,
+                    status: "1"
+                }
+                const address = await Address.create(addData);
+                const result = {
+                    ...data.data,
+                    ...address
+                }
+                res.json(result)
+            })
 
         }
 
     }
     update_account = async (req, res) => {
+        const addData = {
+            province: req.body.province,
+            district: req.body.district,
+            ward: req.body.ward,
+            address: req.body.address,
+            status: "1"
+        }
+
+        const address = await Address.update(req.user.id, addData);
         if (!req.params.id) {
             try {
                 let oldAccount = await Account.getById(req.user.id);
-                // ModifyAccountResquest(oldAccount, req.body);
-                Account.update(req.user.id, req.body, function (result) {
-                    res.json({ message: result });
+                ModifyAccountResquest(oldAccount, req.body);
+                Account.update(req.user.id, oldAccount, function (result) {
+                    const dataResult = {
+                        ...result,
+                        ...address
+                    }
+                    res.json({ message: dataResult });
                 })
             } catch (err) {
                 console.log(err);
@@ -117,7 +164,11 @@ class AccountController {
                 if (oldAccount) {
                     ModifyAccountResquest(oldAccount, req.body);
                     Account.update(req.params.id, oldAccount, function (result) {
-                        res.json({ message: result });
+                        const dataResult = {
+                            ...result,
+                            ...address
+                        }
+                        res.json({ message: dataResult });
                     })
                 }
                 else {
