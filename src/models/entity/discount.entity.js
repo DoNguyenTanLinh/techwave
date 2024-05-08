@@ -26,6 +26,23 @@ Discount.getDiscountShopAuto = (idShop, price, result) => {
         else result(data[0])
     })
 }
+
+Discount.getDiscountSelect = (idDiscount, price, result) => {
+    db.query(`SELECT derived.discount_id,
+    CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 
+    derived.discount
+    FROM (
+        SELECT 
+            (${price} * dc.discount * 0.01 - dc.mdPrice) AS price,
+            (${price} * dc.discount * 0.01) AS price2, 
+            dc.* 
+            FROM discount AS dc 
+            WHERE dc.discount_id=${idDiscount}
+    ) AS derived `, (err, data) => {
+        if (err) console.log(err);
+        else result(data[0])
+    })
+}
 Discount.getDiscountShipAuto = (idUser, price, result) => {
     db.query(`SELECT derived.discount_id,
     CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 

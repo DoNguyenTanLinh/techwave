@@ -16,8 +16,11 @@ const CartResponse = function (cart) {
         try {
             this.product = await Product.getOne(cart.product_id);
             let account = await Account.getById(this.product.createBy);
-            let place = await Address.getAddress(cart.account_id);
-            this.place = {
+            let place = await Address.getAddress(account.account_id);
+            this.store = {
+                account_id: account.account_id,
+                username: account.username,
+                picture: account.avatar,
                 province: place.province,
                 province_id: place.province_id,
                 district: place.district,
@@ -25,11 +28,6 @@ const CartResponse = function (cart) {
                 ward: place.ward,
                 ward_id: place.ward_id,
                 address: place.address
-            }
-            this.store = {
-                account_id: account.account_id,
-                username: account.username,
-                picture: account.avatar
             }
         } catch (error) {
             console.error(error);

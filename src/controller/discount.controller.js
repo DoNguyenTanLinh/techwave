@@ -4,7 +4,6 @@ const DiscountUser = require("../models/entity/discount_user.entity");
 
 class DiscountController {
     get_DiscountShopPayment = (req, res) => {
-
         Discount.getDiscountShopAuto(req.query.idshop, req.query.price, result => {
             res.json(result);
         })
@@ -12,6 +11,11 @@ class DiscountController {
     get_DiscountShipPayment = (req, res) => {
         Discount.getDiscountShipAuto(req.user.id, req.query.price, result => {
             res.json(result);
+        })
+    }
+    get_DiscountSelect = (req, res) => {
+        Discount.getDiscountSelect(req.query.idDiscount, req.query.price, result => {
+            res.json(result)
         })
     }
     get_Discount = (req, res) => {

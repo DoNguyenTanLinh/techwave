@@ -7,5 +7,6 @@ discount.put('/edit/:id', discountController.edit_Discount);
 discount.delete('/delete/:id', discountController.delete_Discount);
 discount.get('/voucher', discountController.get_DiscountShopPayment);
 discount.get('/freeShip', discountController.get_DiscountShipPayment);
+discount.get('/select', discountController.get_DiscountSelect);
 discount.get('/', discountController.get_Discount);
 module.exports = discount;
