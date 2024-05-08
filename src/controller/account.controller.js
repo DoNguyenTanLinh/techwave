@@ -9,6 +9,7 @@ const ejs = require('ejs');
 const fs = require('fs');
 const { add } = require('../models/entity/folow.entity');
 const AccountDetailResponse = require('../models/response/account.response');
+const { checkLogin } = require('../service/loginService');
 class AccountController {
     get_All = function (req, res) {
         if (req.query.page) {
@@ -89,7 +90,10 @@ class AccountController {
         })
     }
     create_account = async function (req, res) {
+        console.log(req.body.status);
         if (!req.body.status) req.body.status = '1';
+        console.log(req.body.status);
+
         let email = await Account.findByEmail(req.body.email);
         if (email) {
             return res.status(200).json({
@@ -111,13 +115,16 @@ class AccountController {
                 status: req.body.status
 
             }
-
+            console.log(accData);
             Account.create(accData, async (data) => {
 
                 const addData = {
                     province: req.body.province,
+                    province_id: req.body.province_id,
                     district: req.body.district,
+                    district_id: req.body.district_id,
                     ward: req.body.ward,
+                    ward_id: req.body.ward_id,
                     address: req.body.address,
                     id_account: data.data.id,
                     status: "1"
@@ -137,8 +144,11 @@ class AccountController {
         const addData = {
             province: req.body.province,
             district: req.body.district,
+            district_id: req.body.district_id,
             ward: req.body.ward,
+            ward_id: req.body.ward_id,
             address: req.body.address,
+            id_account: data.data.id,
             status: "1"
         }
 

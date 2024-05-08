@@ -73,18 +73,21 @@ class ApiController {
             let email = await Account.findByEmail(req.body.email);
 
             if (email) {
-                throw new Error("Email already exists")
+                return res.status(400).json({
+                    err: "400",
+                    message: "Email already exists"
+                });
+
             }
             else {
                 return await accountController.create_account(req, res);
 
             }
 
-        } catch (err) {
-            console.log(err);
+        } catch (error) {
             return res.status(500).json({
-                message: "err from server",
-                err
+                err: "500",
+                message: error
             });
         }
     }
