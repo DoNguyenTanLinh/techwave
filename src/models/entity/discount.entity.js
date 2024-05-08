@@ -60,8 +60,11 @@ Discount.getDiscountShipAuto = (idUser, price, result) => {
         else result(data[0])
     })
 }
-Discount.getDiscount = (idPermission, idUser, result) => {
-
+Discount.getDiscount = (idPermission, idUser, idShop, result) => {
+    if (idShop) {
+        idPermission = 2;
+        idUser = idShop
+    }
     if (idPermission == 2) {
         db.query(`SELECT * FROM discount
         where vendor_id=${idUser}`, (err, data) => {

@@ -115,7 +115,7 @@ class AccountController {
                 status: req.body.status
 
             }
-            console.log(accData);
+
             Account.create(accData, async (data) => {
 
                 const addData = {
@@ -143,6 +143,7 @@ class AccountController {
     update_account = async (req, res) => {
         const addData = {
             province: req.body.province,
+            province_id: req.body.province_id,
             district: req.body.district,
             district_id: req.body.district_id,
             ward: req.body.ward,

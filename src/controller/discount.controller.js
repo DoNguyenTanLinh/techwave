@@ -19,7 +19,7 @@ class DiscountController {
         })
     }
     get_Discount = (req, res) => {
-        Discount.getDiscount(req.user.groupWithRole.permission_id, req.user.id, result => {
+        Discount.getDiscount(req.user.groupWithRole.permission_id, req.user.id, req.query.idshop, result => {
             res.json(result);
         })
     }
