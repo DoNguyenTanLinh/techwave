@@ -19,8 +19,11 @@ const CartResponse = function (cart) {
             let place = await Address.getAddress(cart.account_id);
             this.place = {
                 province: place.province,
+                province_id: place.province_id,
                 district: place.district,
+                district_id: place.district_id,
                 ward: place.ward,
+                ward_id: place.ward_id,
                 address: place.address
             }
             this.store = {
