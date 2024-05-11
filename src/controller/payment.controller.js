@@ -3,6 +3,7 @@ const { Payment } = require('../models/response/payment.response')
 const BillResquest = require('../models/resquest/bill.resquest')
 const { setCartForPayment } = require('../middleware/cart.Action')
 const { updateQuantity } = require('../middleware/product.Action');
+const updateDiscount = require('../middleware/discount.Action');
 const Cart = require('../models/entity/cart.entity');
 
 class PaymentController {
@@ -17,6 +18,8 @@ class PaymentController {
         const data = new BillResquest(req.body, BillResquest)
         let carts = req.body.carts;
         data.createBy = req.user.id;
+
+        updateDiscount(req.body.idDicount, req.user.id)
         data.payment = 'Thanh toán khi nhận hàng';
         const results = carts.map(async (cartData) => {
             const cart = await Cart.findById(cartData.cart_id);
