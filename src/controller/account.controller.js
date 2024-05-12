@@ -15,51 +15,52 @@ class AccountController {
 
         if (req.query.page) {
             Account.getAllAccounts(req.query.status, function (data) {
-                Account.getAllAccounts(req.query.status, function (data) {
-                    const accounts = data.map(async (account) => {
-                        const accDetail = new AccountDetailResponse(account);
-                        await accDetail.init();
-                        return accDetail;
-                    })
-                    Promise.all(accounts)
-                        .then((accData) => {
-                            const page = parseInt(req.query.page);
-                            const limit = parseInt(req.query.limit);
-                            // calculating the starting and ending index
-                            const startIndex = (page - 1) * limit;
-                            const endIndex = page * limit;
-                            const results = {};
-                            results.total = Math.ceil(accData.length / limit)
-                            if (endIndex < accData.length) {
-                                results.next = {
-                                    page: page + 1,
-                                    limit: limit
-                                };
-                            }
-                            if (startIndex > 0) {
-                                results.previous = {
-                                    page: page - 1,
-                                    limit: limit
-                                };
-                            }
-                            results.results = accData.slice(startIndex, endIndex);
-                            res.status(200).json(results);
-                        })
-                        .catch((error) => res.status(400).json(error));
-                })
 
-            })
-        }
-        else {
-            Account.getAllAccounts(req.query.status, function (data) {
                 const accounts = data.map(async (account) => {
                     const accDetail = new AccountDetailResponse(account);
                     await accDetail.init();
                     return accDetail;
                 })
                 Promise.all(accounts)
-                    .then((accData) => res.status(200).json(accData))
+                    .then((accData) => {
+                        const page = parseInt(req.query.page);
+                        const limit = parseInt(req.query.limit);
+                        // calculating the starting and ending index
+                        const startIndex = (page - 1) * limit;
+                        const endIndex = page * limit;
+                        const results = {};
+                        results.total = Math.ceil(accData.length / limit)
+                        if (endIndex < accData.length) {
+                            results.next = {
+                                page: page + 1,
+                                limit: limit
+                            };
+                        }
+                        if (startIndex > 0) {
+                            results.previous = {
+                                page: page - 1,
+                                limit: limit
+                            };
+                        }
+                        results.results = accData.slice(startIndex, endIndex);
+                        res.status(200).json(results);
+                    })
                     .catch((error) => res.status(400).json(error));
+
+
+            })
+        }
+        else {
+            Account.getAllAccounts(req.query.status, function (data) {
+                console.log(data);
+                // const accounts = data.map(async (account) => {
+                //     const accDetail = new AccountDetailResponse(account);
+                //     await accDetail.init();
+                //     return accDetail;
+                // })
+                // Promise.all(accounts)
+                //     .then((accData) => res.status(200).json(accData))
+                //     .catch((error) => res.status(400).json(error));
             })
         }
     }
@@ -163,6 +164,8 @@ class AccountController {
 
     }
     update_account = async (req, res) => {
+        var idUser = req.user.id;
+        if (req.params.id) { idUser = req.params.id; }
         const addData = {
             province: req.body.province,
             province_id: req.body.province_id,
@@ -171,11 +174,11 @@ class AccountController {
             ward: req.body.ward,
             ward_id: req.body.ward_id,
             address: req.body.address,
-            id_account: req.user.id,
+            id_account: idUser,
             status: "1"
         }
 
-        const address = await Address.update(req.user.id, addData);
+        const address = await Address.update(idUser, addData);
         if (!req.params.id) {
             try {
                 let oldAccount = await Account.getById(req.user.id);
