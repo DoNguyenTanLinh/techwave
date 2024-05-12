@@ -39,7 +39,14 @@ class AccountController {
         }
         else {
             Account.getAllAccounts(req.query.status, function (data) {
-                res.json(data);
+                const accounts = data.map(async (account) => {
+                    const accDetail = new AccountDetailResponse(account);
+                    await accDetail.init();
+                    return accDetail;
+                })
+                Promise.all(accounts)
+                    .then((accData) => res.status(200).json(accData))
+                    .catch((error) => res.status(400).json(error));
             })
         }
     }
@@ -149,7 +156,7 @@ class AccountController {
             ward: req.body.ward,
             ward_id: req.body.ward_id,
             address: req.body.address,
-            id_account: data.data.id,
+            id_account: req.user.id,
             status: "1"
         }
 
