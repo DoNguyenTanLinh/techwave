@@ -12,29 +12,42 @@ const AccountDetailResponse = require('../models/response/account.response');
 const { checkLogin } = require('../service/loginService');
 class AccountController {
     get_All = function (req, res) {
+
         if (req.query.page) {
             Account.getAllAccounts(req.query.status, function (data) {
-                const page = parseInt(req.query.page);
-                const limit = parseInt(req.query.limit);
-                // calculating the starting and ending index
-                const startIndex = (page - 1) * limit;
-                const endIndex = page * limit;
-                const results = {};
-                results.total = Math.ceil(data.length / limit)
-                if (endIndex < data.length) {
-                    results.next = {
-                        page: page + 1,
-                        limit: limit
-                    };
-                }
-                if (startIndex > 0) {
-                    results.previous = {
-                        page: page - 1,
-                        limit: limit
-                    };
-                }
-                results.results = data.slice(startIndex, endIndex);
-                res.status(200).json(results);
+                Account.getAllAccounts(req.query.status, function (data) {
+                    const accounts = data.map(async (account) => {
+                        const accDetail = new AccountDetailResponse(account);
+                        await accDetail.init();
+                        return accDetail;
+                    })
+                    Promise.all(accounts)
+                        .then((accData) => {
+                            const page = parseInt(req.query.page);
+                            const limit = parseInt(req.query.limit);
+                            // calculating the starting and ending index
+                            const startIndex = (page - 1) * limit;
+                            const endIndex = page * limit;
+                            const results = {};
+                            results.total = Math.ceil(accData.length / limit)
+                            if (endIndex < accData.length) {
+                                results.next = {
+                                    page: page + 1,
+                                    limit: limit
+                                };
+                            }
+                            if (startIndex > 0) {
+                                results.previous = {
+                                    page: page - 1,
+                                    limit: limit
+                                };
+                            }
+                            results.results = accData.slice(startIndex, endIndex);
+                            res.status(200).json(results);
+                        })
+                        .catch((error) => res.status(400).json(error));
+                })
+
             })
         }
         else {
@@ -63,7 +76,9 @@ class AccountController {
     get_OthDetails = async function (req, res) {
         try {
             let data = await Account.getById(req.params.id)
-            res.json(data);
+            const accDetail = new AccountDetailResponse(data);
+            await accDetail.init();
+            res.json(accDetail);
         } catch (err) {
             res.json({ message: "Error", err })
         }
