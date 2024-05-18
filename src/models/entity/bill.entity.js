@@ -2,16 +2,12 @@ const db = require('../../connection/connect');
 const date = require('date-and-time');
 const Bill = function (bill) {
     this.bill_id = bill.bill_id;
-    this.cart_id = bill.cart_id;
     this.fullname = bill.fullname;
     this.phone = bill.phone;
     this.address = bill.address;
     this.totalBill = bill.totalBill;
-    this.express = bill.express;
     this.payment = bill.payment;
-    this.status = bill.status;
     this.createdAt = bill.createdAt;
-    this.acceptAt = bill.acceptAt;
     this.payment_id = bill.payment_id;
 }
 Bill.getStatusByUser = (idUser, idProduct) => {
@@ -64,11 +60,10 @@ Bill.getOne = (id, result) => {
 Bill.create = (data) => {
     const now = new Date();
     data.createAt = date.format(now, 'YYYY/MM/DD HH:mm:ss');
-    data.status = '0';
     return new Promise((resolve, reject) => {
         db.query(`INSERT INTO bill SET ?`, data, (err, kq) => {
             if (err || kq.length == 0) console.log(err)
-            else resolve({ bill_id: kq.insertId, ...data })
+            else resolve(kq.insertId)
         })
     })
 }

@@ -5,6 +5,10 @@ const { setCartForPayment } = require('../middleware/cart.Action')
 const { updateQuantity } = require('../middleware/product.Action');
 const updateDiscount = require('../middleware/discount.Action');
 const Cart = require('../models/entity/cart.entity');
+const ShopBillResquest = require('../models/resquest/shop_bill.request');
+const ShopBill = require('../models/entity/shop_bill.enitity');
+const CartShopResquest = require('../models/resquest/cart_shop.request');
+const CartShop = require('../models/entity/cart_shop.entity');
 
 class PaymentController {
     getPaymentMethods = async (req, res) => {
@@ -15,30 +19,37 @@ class PaymentController {
         res.json(cart);
     }
     createPayment = async (req, res) => {
-        const data = new BillResquest(req.body, BillResquest)
-        let carts = req.body.carts;
-        data.createBy = req.user.id;
+        try {
+            const billData = new BillResquest(req.body, BillResquest)
+            const shop = req.body.shop;
+            billData.createBy = req.user.id;
+            billData.payment = 'Thanh toán khi nhận hàng';
+            const billId = await Bill.create(billData)
+            Promise.all(shop.map(async (shopData) => {
+                try {
+                    shopData.bill_id = billId;
+                    const shopCreateData = new ShopBillResquest(shopData, ShopBillResquest)
+                    const idShop = await ShopBill.insertShopBill(shopCreateData);
+                    await updateDiscount(shopData.voucher_id, req.user.id)
+                    const cart = shopData.cart;
+                    await Promise.all(cart.map(async (cartData) => {
+                        cartData.shop_bill_id = idShop;
+                        const cartCreateData = new CartShopResquest(cartData, CartShopResquest)
+                        await CartShop.insertCart(cartCreateData);
+                    }))
 
-        updateDiscount(req.body.idDicount, req.user.id)
-        data.payment = 'Thanh toán khi nhận hàng';
-        const results = carts.map(async (cartData) => {
-            const cart = await Cart.findById(cartData.cart_id);
-            data.cart_id = cart.cart_id;
-            data.totalBill = cart.price * cart.quantity;
-            setCartForPayment(cart.cart_id)
-            updateQuantity(cart.cart_id)
-            const bill = await Bill.create(data)
-            return { bill, cart }
-
-        })
-        Promise.all(results)
-            .then((data) => {
-                res.json(data);
-            })
-            .catch((error) => {
-                console.error(error);
-                res.status(500).send("Error fetching cart data");
-            });
+                }
+                catch (error) {
+                    console.log("map Payment Cart: ", error);
+                }
+            }))
+            await updateDiscount(req.body.voucher_id, req.user.id)
+            res.status(200).json({ status: "ok", message: "success" })
+        } catch (error) {
+            console.error("createPayment Error: ", error);
+            res.status(500).json({ status: "error", message: "Internal Server Error" });
+        }
     }
+
 }
 module.exports = new PaymentController;

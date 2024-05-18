@@ -78,7 +78,7 @@ router.post('/create_payment_url', async function (req, res, next) {
         payment: "VNPAY",
         payment_id: orderId
     }
-
+    updateDiscount(req.body.idDicount, req.user.id)
     if (bankCode !== null && bankCode !== '') {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
