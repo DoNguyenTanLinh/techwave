@@ -72,12 +72,15 @@ class BillController {
         })
     }
     getforUser_bill = (req, res) => {
-        Bill.getBillOfUser(req.user.id, req.query.status, (data) => {
+        Bill.getBillOfUser(req.user.id, (data) => {
+
+            if (!req.query.status) req.query.status = '%';
             if (data) {
                 const bills = data.map(async (billData) => {
-                    const bill = new BillResponse(billData);
+                    const bill = new BillResponse(billData, req.query.status);
                     await bill.init();
                     await bill.initPaymentId();
+
                     return bill;
                 })
                 Promise.all(bills)

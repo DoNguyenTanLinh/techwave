@@ -42,6 +42,7 @@ const CartResponse = function (cart) {
     }
 }
 const CartBillResponse = function (cart) {
+    this.cart_id = cart.cart_id;
     this.product = null;
     this.option = null;
     this.quantity = cart.quantity;
