@@ -21,18 +21,19 @@ Bill.getStatusByUser = (idUser, idProduct) => {
         })
     })
 }
-Bill.getBillOfVender = (id, status, result) => {
-    db.query(`SELECT bill.* FROM bill
-    inner join cart on cart.cart_id=bill.cart_id
-    inner join product on cart.product_id=product.product_id
-    WHERE product.createBy=${id} and bill.status='${status}' ORDER BY createAt DESC`, (err, data) => {
+Bill.getBillOfVender = (id, result) => {
+    db.query(`select b.*, ac.username, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill from bill as b
+    inner join shop_bill as sb on sb.bill_id=b.bill_id
+    inner join account as ac on ac.account_id=sb.shop_id
+    WHERE sb.shop_id=${id} ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)
     })
 }
 Bill.getBillOfUser = (id, result) => {
-    db.query(`select b.*, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill from bill as b
-        inner join shop_bill as sb on sb.bill_id=b.bill_id
+    db.query(`select b.*, ac.username, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill from bill as b
+    inner join shop_bill as sb on sb.bill_id=b.bill_id
+    inner join account as ac on ac.account_id=sb.shop_id
         WHERE createBy=${id} ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)

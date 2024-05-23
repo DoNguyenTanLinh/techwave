@@ -5,12 +5,12 @@ const BillResponse = require('../models/response/bill.response');
 class BillController {
     getforVender_bill = (req, res) => {
 
-
+        if (!req.query.status) req.query.status = '%';
         if (req.query.page) {
-            Bill.getBillOfVender(req.user.id, req.query.status, (data) => {
+            Bill.getBillOfVender(req.user.id, (data) => {
                 if (data) {
                     const bills = data.map(async (billData) => {
-                        const bill = new BillResponse(billData);
+                        const bill = new BillResponse(billData, req.query.status);
                         await bill.initPaymentId();
                         await bill.init();
                         return bill;
@@ -46,10 +46,10 @@ class BillController {
             })
         }
         else {
-            Bill.getBillOfVender(req.user.id, req.query.status, (data) => {
+            Bill.getBillOfVender(req.user.id, (data) => {
                 if (data) {
                     const bills = data.map(async (billData) => {
-                        const bill = new BillResponse(billData);
+                        const bill = new BillResponse(billData, req.query.status);
                         await bill.initPaymentId();
                         await bill.init();
                         return bill;

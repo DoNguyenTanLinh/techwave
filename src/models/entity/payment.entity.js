@@ -13,6 +13,19 @@ Payment.getOne = (id) => {
         })
     })
 }
+Payment.getStatusPaid = (idBill) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM bill as b
+        inner join payment as pm on b.payment_id=pm.payment_id
+        where b.bill_id=${idBill}`, (err, data) => {
+            if (err) reject(err)
+            else {
+                if (data.length == 0) resolve(false)
+                else resolve(true)
+            }
+        })
+    })
+}
 Payment.create = function (data) {
     db.query(`INSERT INTO payment SET ?`, data, (err) => {
         if (err) console.log(err);

@@ -10,10 +10,13 @@ const BillResponse = function (data, status) {
     this.totalBill = data.Bill;
     this.payment = data.payment;
     this.createAt = data.createAt;
+    this.shopname = data.username;
+    this.paid = null;
     this.payment_id = null;
     this.shop_bill_id = null;
     this.init = async () => {
         try {
+            this.paid = await Payment.getStatusPaid(data.bill_id)
             this.shop_bill_id = await ShopBill.findCartsShop(data.shop_bill_id, status);
         } catch (e) {
             console.log(e);
