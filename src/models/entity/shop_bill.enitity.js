@@ -4,9 +4,20 @@ const ShopBill = (shop) => {
     this.shop_bill_id = shop.shop_bill_id;
     this.shop_id = shop.shop_id;
     this.totalbill = shop.totalbill;
+    this.status = shop.status;
     this.bill_id = shop.bill_id;
 }
+ShopBill.getShopBillofBill = (idBill) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT shop_bill_id FROM shop_bill
+        where bill_id=${idBill}`, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+        })
+    })
+}
 ShopBill.insertShopBill = (shop) => {
+    shop.status = 0
     return new Promise((resolve, reject) => {
         db.query(`INSERT INTO shop_bill SET ?`, shop, (err, data) => {
             if (err) reject(err)
@@ -14,9 +25,9 @@ ShopBill.insertShopBill = (shop) => {
         })
     })
 }
-ShopBill.findCartsShop = (shopBillID, status) => {
+ShopBill.findCartsShop = (shopBillID) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM cart_shop where shop_bill_id = ? and status like '${status}'`, shopBillID, (err, data) => {
+        db.query(`SELECT * FROM cart_shop where shop_bill_id = ? `, shopBillID, (err, data) => {
             if (err) reject(err)
             else {
                 Promise.all(data.map(async shop => {

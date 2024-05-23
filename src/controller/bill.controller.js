@@ -10,7 +10,7 @@ class BillController {
             Bill.getBillOfVender(req.user.id, (data) => {
                 if (data) {
                     const bills = data.map(async (billData) => {
-                        const bill = new BillResponse(billData, req.query.status);
+                        const bill = new BillResponse(billData);
                         await bill.initPaymentId();
                         await bill.init();
                         return bill;
@@ -49,7 +49,7 @@ class BillController {
             Bill.getBillOfVender(req.user.id, (data) => {
                 if (data) {
                     const bills = data.map(async (billData) => {
-                        const bill = new BillResponse(billData, req.query.status);
+                        const bill = new BillResponse(billData);
                         await bill.initPaymentId();
                         await bill.init();
                         return bill;
@@ -72,12 +72,11 @@ class BillController {
         })
     }
     getforUser_bill = (req, res) => {
-        Bill.getBillOfUser(req.user.id, (data) => {
-
-            if (!req.query.status) req.query.status = '%';
+        if (!req.query.status) req.query.status = '%';
+        Bill.getBillOfUser(req.user.id, req.query.status, (data) => {
             if (data) {
                 const bills = data.map(async (billData) => {
-                    const bill = new BillResponse(billData, req.query.status);
+                    const bill = new BillResponse(billData);
                     await bill.init();
                     await bill.initPaymentId();
 
@@ -92,7 +91,7 @@ class BillController {
         })
     }
     getReceivedforUser_bill = (req, res) => {
-        Bill.getBillReceivedOfUser(req.user.id, (data) => {
+        Bill.getBillReceivedOfUser(req.user.id, req.query.status, (data) => {
             if (data) {
                 const bills = data.map(async (billData) => {
                     const bill = new BillResponse(billData);

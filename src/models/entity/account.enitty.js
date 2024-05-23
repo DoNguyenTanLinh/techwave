@@ -137,5 +137,15 @@ Account.active = function (id, result) {
         else result('Active Successful');
     });
 }
+Account.getInfoAccountBill = (idAcc) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT  ac.avatar, ad.province, ad.district, ad.ward FROM account as ac
+        inner join address as ad on ac.account_id=ad.id_account
+        where ac.account_id=${idAcc} and ad.status=1`, (err, data) => {
+            if (err) reject(err);
+            else resolve(data[0])
+        })
+    })
+}
 
 module.exports = Account;
