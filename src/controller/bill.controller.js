@@ -7,7 +7,7 @@ class BillController {
 
         if (!req.query.status) req.query.status = '%';
         if (req.query.page) {
-            Bill.getBillOfVender(req.user.id, (data) => {
+            Bill.getBillOfVender(req.user.id, req.query.status, (data) => {
                 if (data) {
                     const bills = data.map(async (billData) => {
                         const bill = new BillResponse(billData);
@@ -46,7 +46,7 @@ class BillController {
             })
         }
         else {
-            Bill.getBillOfVender(req.user.id, (data) => {
+            Bill.getBillOfVender(req.user.id, req.query.status, (data) => {
                 if (data) {
                     const bills = data.map(async (billData) => {
                         const bill = new BillResponse(billData);

@@ -22,11 +22,11 @@ Bill.getStatusByUser = (idUser, idProduct) => {
         })
     })
 }
-Bill.getBillOfVender = (id, result) => {
+Bill.getBillOfVender = (id, status, result) => {
     db.query(`select b.*, ac.username, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill,sb.status from bill as b
     inner join shop_bill as sb on sb.bill_id=b.bill_id
     inner join account as ac on ac.account_id=sb.shop_id
-    WHERE sb.shop_id=${id} ORDER BY createAt DESC`, (err, data) => {
+    WHERE sb.shop_id=${id} and sb.status=${status} ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)
     })
@@ -96,19 +96,19 @@ Bill.reject = async (id, result) => {
     }
 }
 Bill.setReceived = (id, userId, result) => {
-    db.query(`UPDATE bill SET status='2' WHERE bill_id=${id} and status='1' and createBy=${userId}`, (err) => {
+    db.query(`UPDATE shop_bill SET status='2' WHERE shop_bill_id=${id} and status='1' and createBy=${userId}`, (err) => {
         if (err) console.log(err);
         else result("Đã nhận đơn hàng Thành công")
     })
 }
 Bill.setCancel = (id, userId, result) => {
-    db.query(`UPDATE bill SET status='4' WHERE bill_id=${id} and status='0' and createBy=${userId}`, (err) => {
+    db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${id} and status='0' and createBy=${userId}`, (err) => {
         if (err) console.log(err);
         else result("Đã hàng đã hủy")
     })
 }
 Bill.delete = (id, result) => {
-    db.query(`DELETE From bill WHERE status='4' bill_id=${id}`, (err) => {
+    db.query(`DELETE From shop_bill WHERE status='4' shop_bill_id=${id}`, (err) => {
         if (err) console.log(err);
         else result("Đơn hàng đã xóa")
     })
