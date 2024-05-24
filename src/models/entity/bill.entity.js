@@ -95,17 +95,35 @@ Bill.reject = async (id, result) => {
         result({ s: 400, message: err })
     }
 }
-Bill.setReceived = (id, userId, result) => {
-    db.query(`UPDATE shop_bill SET status='2' WHERE shop_bill_id=${id} and status='1' and createBy=${userId}`, (err) => {
-        if (err) console.log(err);
-        else result("Đã nhận đơn hàng Thành công")
-    })
+Bill.setReceived = async (id, userId, result) => {
+    try {
+        const shopBillID = await ShopBill.getShopBillofUser(id, userId);
+        Promise.all(shopBillID.map(async (idshop) => {
+            db.query(`UPDATE shop_bill SET status='2' WHERE shop_bill_id=${idshop.shop_bill_id}`)
+        }))
+            .then(() => {
+                result({ s: 200, message: "success" })
+            })
+            .catch(err => result({ s: 400, message: err }))
+    } catch (err) {
+        console.log(err);
+        result({ s: 400, message: err })
+    }
 }
-Bill.setCancel = (id, userId, result) => {
-    db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${id} and status='0' and createBy=${userId}`, (err) => {
-        if (err) console.log(err);
-        else result("Đã hàng đã hủy")
-    })
+Bill.setCancel = async (id, userId, result) => {
+    try {
+        const shopBillID = await ShopBill.getShopBillofUser(id, userId);
+        Promise.all(shopBillID.map(async (idshop) => {
+            db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${idshop.shop_bill_id}`)
+        }))
+            .then(() => {
+                result({ s: 200, message: "success" })
+            })
+            .catch(err => result({ s: 400, message: err }))
+    } catch (err) {
+        console.log(err);
+        result({ s: 400, message: err })
+    }
 }
 Bill.delete = (id, result) => {
     db.query(`DELETE From shop_bill WHERE status='4' shop_bill_id=${id}`, (err) => {

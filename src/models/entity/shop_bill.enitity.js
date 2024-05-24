@@ -16,6 +16,16 @@ ShopBill.getShopBillofBill = (idBill) => {
         })
     })
 }
+ShopBill.getShopBillofUser = (idBill, idUser) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT sb.* FROM shop_bill as sb
+        inner join bill as b on b.bill_id=sb.bill_id
+        where sb.bill_id=${idBill} and b.createBy=${idUser}`, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+        })
+    })
+}
 ShopBill.insertShopBill = (shop) => {
     shop.status = 0
     return new Promise((resolve, reject) => {
