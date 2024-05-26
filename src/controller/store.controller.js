@@ -1,4 +1,4 @@
-const { await } = require("await");
+const date = require('date-and-time');
 const Category = require("../models/entity/category.entity");
 const Product = require("../models/entity/product.entity");
 const Store = require("../models/entity/store.entity");
@@ -81,6 +81,7 @@ class StoreController {
         await statistic.initRevenue();
         await statistic.initCustomer();
         await statistic.initInventory();
+        await statistic.initSaleStatitics();
         await statistic.initOrderStatistic();
         res.json({ statistic })
     }

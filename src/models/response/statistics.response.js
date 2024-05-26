@@ -1,13 +1,15 @@
+const date = require('date-and-time');
 const Store = require("../entity/store.entity");
 const StatisticResponse = function (id) {
     this.revenue = null;
     this.countCustomer = null;
     this.inventories = null;
+    this.saleStatitics = null;
     this.ordersStatistic = null;
     this.initRevenue = async function () {
         try {
-            const revenues = await Store.getRevenue(id);
-            this.revenue = (revenues * 0.0000412712).toFixed(2)
+            this.revenue = await Store.getRevenue(id);
+            // this.revenue = (revenues * 0.0000412712).toFixed(2)
         } catch (e) {
             console.error(e)
         }
@@ -26,37 +28,40 @@ const StatisticResponse = function (id) {
             console.error(e)
         }
     }
-    this.initOrderStatistic = async function () {
+    this.initSaleStatitics = async function () {
         try {
             const now = new Date();
             const year = now.getFullYear();
-            let listLabel = ["Đơn hàng thành công", "Đơn hàng thất bại", "Đơn hàng bị hủy"];
+            const month = now.getMonth() + 1; // months are 0-based, so we add 1
+            const lastDay = date.format(new Date(year, month, 0), 'DD')
             const ouput = []
-            for (const label of listLabel) {
-                const result = {
-                    label
-                };
-                const index = []
-                let data = {
-                    year
-                }
-                if (label == 'Đơn hàng thành công') {
-                    data.status = 2;
-                } else if (label == 'Đơn hàng thất bại') {
-                    data.status = 3;
-                } else {
-                    data.status = 4;
-                }
-                for (let i = 1; i <= 12; i++) {
-                    data.month = i
-                    const countOrder = await Store.getCountOrders(id, data)
-                    index.push(countOrder)
-                }
-                result.data = index
-                ouput.push(result)
+            for (let i = 1; i <= 12; i++) {
+                const statistic = await Store.getStatiticsByYear(id, i, year)
+                ouput.push(statistic)
+            }
+
+            const ouput2 = []
+            for (let i = 1; i <= lastDay; i++) {
+                const statistic = await Store.getStatiticsByMonth(id, i, year)
+                ouput2.push(statistic)
+            }
+            this.saleStatitics = {
+                year: ouput,
+                month: ouput2
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+    this.initOrderStatistic = async function () {
+        try {
+
+            const ouput = []
+            for (let i = 0; i <= 4; i++) {
+                const countOrder = await Store.getCountOrders(id, i)
+                ouput.push(countOrder)
             }
             this.ordersStatistic = ouput
-
         } catch (e) {
             console.error(e)
         }

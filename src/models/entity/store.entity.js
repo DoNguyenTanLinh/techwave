@@ -96,46 +96,58 @@ Store.getJoin = (id) => {
 }
 Store.getRevenue = (idVendor) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT sum(b.totalBill) as sum FROM techwave.bill as b
-        inner join cart as c on b.cart_id=c.cart_id
-        inner join product as p on c.product_id=p.product_id
-        WHERE p.createBy=${idVendor}`, (err, result) => {
+        db.query(`select sum(totalbill) as revenue from shop_bill where shop_id=${idVendor}`, (err, result) => {
             if (err) reject(err);
-            else resolve(result[0].sum)
+            else resolve(result[0].revenue)
         })
     })
 }
-Store.getCountOrders = (idVendor, data) => {
+Store.getCountOrders = (idVendor, status) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT count(*) as sum FROM techwave.bill as b
-        inner join cart as c on b.cart_id=c.cart_id
-        inner join product as p on c.product_id=p.product_id
-        WHERE p.createBy=${idVendor} and b.status=${data.status} and MONTH(b.createAt)=${data.month} and YEAR(b.createAt)=${data.year}`, (err, result) => {
+        db.query(`SELECT count(*) as data  FROM shop_bill 
+        where shop_id=${idVendor} and status=${status}`, (err, result) => {
             if (err) reject(err)
-            else resolve(result[0].sum)
+            else resolve(result[0].data)
+        })
+    });
+}
+Store.getStatiticsByMonth = (idVendor, day, year) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT  COALESCE(SUM(sb.totalBill), 0) AS data  FROM bill as b
+        inner join shop_bill as sb on sb.bill_id=b.bill_id
+        where sb.shop_id=${idVendor} and DAY(b.createAt)=${day} and YEAR(b.createAt)=${year}`, (err, result) => {
+            if (err) reject(err)
+            else resolve(result[0].data)
+        })
+    });
+}
+
+Store.getStatiticsByYear = (idVendor, month, year) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT  COALESCE(SUM(sb.totalBill), 0) AS data  FROM bill as b
+        inner join shop_bill as sb on sb.bill_id=b.bill_id
+        where sb.shop_id=${idVendor} and MONTH(b.createAt)=${month} and YEAR(b.createAt)=${year}`, (err, result) => {
+            if (err) reject(err)
+            else resolve(result[0].data)
         })
     });
 }
 Store.getCustomer = (idVendor) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT count(*) FROM techwave.bill as b
-        inner join cart as c on b.cart_id=c.cart_id
-        inner join product as p on c.product_id=p.product_id
-        WHERE p.createBy=${idVendor}
-        Group by b.createBy`, (err, data) => {
+        db.query(`SELECT count(distinct createBy) as countCustomer FROM bill as b
+        inner join shop_bill as sb on sb.bill_id=b.bill_id
+        where sb.shop_id=${idVendor}`, (err, data) => {
             if (err) reject(err)
-            else resolve(data.length)
+            else resolve(data[0].countCustomer)
         })
     });
 }
 Store.getInventory = (idVendor) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT  SUM(DISTINCT p.quantity) as sum FROM techwave.bill as b
-        inner join cart as c on b.cart_id=c.cart_id
-        inner join product as p on c.product_id=p.product_id
-        WHERE p.createBy=${idVendor}`, (err, result) => {
+        db.query(`SELECT count(*) as inventories FROM product
+        where createBy=${idVendor}`, (err, result) => {
             if (err) reject(err)
-            else resolve(result[0].sum)
+            else resolve(result[0].inventories)
         })
     })
 }
