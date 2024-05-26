@@ -171,6 +171,7 @@ const checkUserAction = (req, res, next) => {
             else if (oldUrl === 'payment') next();
             else if (oldUrl === 'createBill') next();
             else if (oldUrl === 'bill') next();
+            else if (oldUrl === 'home') next();
             else if (oldUrl === 'folow') next();
             else if (oldUrl === 'statistic') next();
             // else if (oldUrl === 'reason') next();
