@@ -1,4 +1,5 @@
 var mysql = require('mysql2');
+require('dotenv').config();
 const util = require('util');
 var connection = mysql.createConnection(
     {
@@ -7,11 +8,11 @@ var connection = mysql.createConnection(
         // password: "wRlttwNYDt",
         // database: 'sql10670611',
         // port: 3306
-        host: "localhost",
-        user: "root",
-        password: "linhtando20",
-        database: 'techwave'
-        // port: 3306
+        host: process.env.HostDB,
+        user: process.env.UserDB,
+        password: process.env.PassDB,
+        database: process.env.DBName,
+        port: 22006
     }
 );
 connection.connect((error) => {
