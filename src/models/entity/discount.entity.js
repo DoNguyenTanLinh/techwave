@@ -1,4 +1,5 @@
 const db = require('../../connection/connect');
+const date = require('date-and-time');
 const Discount = function (discount) {
     this.discount_id = discount.discount_id;
     this.quantity = discount.quantity;
@@ -10,6 +11,9 @@ const Discount = function (discount) {
     this.vendor_id = discount.vendor_id;
 }
 Discount.getDiscountShopAuto = (idShop, price, result) => {
+    const now = new Date();
+    const day = date.format(now, 'YYYY/MM/DD');
+    console.log(day);
     db.query(`SELECT derived.discount_id,
     CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 
     derived.discount
@@ -19,7 +23,7 @@ Discount.getDiscountShopAuto = (idShop, price, result) => {
             (${price} * dc.discount * 0.01) AS price2, 
             dc.* 
         FROM discount AS dc 
-        WHERE dc.vendor_id = ${idShop} and minPrice<=${price}
+        WHERE dc.vendor_id = ${idShop} and minPrice<=${price} and DATE(dc.expires) >= DATE('${day}')
     ) AS derived 
     ORDER BY result desc`, (err, data) => {
         if (err) console.log(err);
@@ -44,6 +48,8 @@ Discount.getDiscountSelect = (idDiscount, price, result) => {
     })
 }
 Discount.getDiscountShipAuto = (idUser, price, result) => {
+    const now = new Date();
+    const day = date.format(now, 'YYYY/MM/DD');
     db.query(`SELECT derived.discount_id,
     CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 
     derived.discount
@@ -53,7 +59,7 @@ Discount.getDiscountShipAuto = (idUser, price, result) => {
             (${price} * dc.discount * 0.01) AS price2, 
             dc.* 
         FROM discount AS dc inner join discount_user as dsu
-        on dc.discount_id=dsu.dsc_id where user_id=${idUser}
+        on dc.discount_id=dsu.dsc_id where user_id=${idUser} and  DATE(dc.expires) >= DATE('${day}')
     ) AS derived 
     ORDER BY result desc`, (err, data) => {
         if (err) console.log(err);

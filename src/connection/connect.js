@@ -12,7 +12,7 @@ var connection = mysql.createConnection(
         user: process.env.UserDB,
         password: process.env.PassDB,
         database: process.env.DBName,
-        port: 22006
+        port: process.env.PORT
     }
 );
 connection.connect((error) => {

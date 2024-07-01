@@ -68,7 +68,7 @@ Product.getDetails = function (id, result) {
 }
 Product.getRating = (id) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT FORMAT(sum(rating)/count(rating),1) as rating FROM review inner join product on review.product_id=product.product_id
+        db.query(`SELECT FORMAT(COALESCE(sum(rating)/count(rating),0),1) as rating FROM review inner join product on review.product_id=product.product_id
         WHERE product.product_id=${id}`, (err, result) => {
             if (err) {
                 console.log(err);
@@ -85,11 +85,12 @@ Product.getRating = (id) => {
 }
 Product.findHaveSales = (id) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM bill inner join cart on bill.cart_id=cart.cart_id
-        inner join product on cart.product_id=product.product_id
-        WHERE product.product_id=${id} and bill.status=2`, (err, data) => {
+        db.query(`select COALESCE(SUM(c.quantity), 0) as sum from cart_shop as cs
+inner join shop_bill as sb on sb.shop_bill_id=cs.shop_bill_id
+inner join cart as c on c.cart_id=cs.cart_id
+where sb.status=2 and c.product_id=${id}`, (err, data) => {
             if (err) reject(err);
-            else resolve(data.length)
+            else resolve(data[0].sum)
         })
     })
 }
@@ -146,14 +147,30 @@ Product.delete = function (id, result) {
     }
 }
 
-Product.getByCategory = function (id, result) {
+Product.getByCategory = function (id, query, result) {
     try {
-        db.query(`SELECT p.* FROM product as p
+        if (query = 'topsale') {
+
+            db.query(` select *, (SELECT count(*) FROM cart_shop as csh
+inner join cart as c on c.cart_id=csh.cart_id
+where product_id=pd.product_id) as pr From (SELECT p.* FROM product as p
         inner join category as c on p.category_id=c.category_id
-        WHERE p.category_id=${id} or c.category_parent_id=${id}`, (err, data) => {
-            if (err) { console.log(err); }
-            else result(data)
-        })
+        WHERE p.category_id=${id} or c.category_parent_id=${id}) as pd
+        order by pr desc`, (err, data) => {
+                if (err) { console.log(err); }
+                else result(data)
+            })
+        }
+        else {
+            db.query(`SELECT p.* FROM product as p
+                inner join category as c on p.category_id=c.category_id
+                WHERE p.category_id=${id} or c.category_parent_id=${id}
+                ${query}`, (err, data) => {
+                if (err) { console.log(err); }
+                else result(data)
+            })
+        }
+
     } catch (err) {
         console.log(err);
         result(null)

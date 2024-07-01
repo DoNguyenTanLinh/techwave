@@ -90,23 +90,23 @@ class BillController {
             }
         })
     }
-    getReceivedforUser_bill = (req, res) => {
-        Bill.getBillReceivedOfUser(req.user.id, req.query.status, (data) => {
-            if (data) {
-                const bills = data.map(async (billData) => {
-                    const bill = new BillResponse(billData);
-                    await bill.init();
-                    await bill.initPaymentId();
-                    return bill;
-                })
-                Promise.all(bills)
-                    .then((billResult) => res.json(billResult))
-                    .catch((error) => console.log(error))
-            } else {
-                res.json(data);
-            }
-        })
-    }
+    // getReceivedforUser_bill = (req, res) => {
+    //     Bill.getBillReceivedOfUser(req.user.id, req.query.status, (data) => {
+    //         if (data) {
+    //             const bills = data.map(async (billData) => {
+    //                 const bill = new BillResponse(billData);
+    //                 await bill.init();
+    //                 await bill.initPaymentId();
+    //                 return bill;
+    //             })
+    //             Promise.all(bills)
+    //                 .then((billResult) => res.json(billResult))
+    //                 .catch((error) => console.log(error))
+    //         } else {
+    //             res.json(data);
+    //         }
+    //     })
+    // }
     setApproval = (req, res) => {
         Bill.approve(req.params.id, (kq) => {
             res.json(kq)

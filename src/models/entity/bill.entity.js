@@ -13,12 +13,13 @@ const Bill = function (bill) {
 }
 Bill.getStatusByUser = (idUser, idProduct) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM bill as b
-        inner join cart as c on c.cart_id=b.cart_id
-        inner join product as p on p.product_id=c.product_id
-        WHERE b.createBy=${idUser} and p.product_id=${idProduct} and b.status=2`, (err, data) => {
+        db.query(`select COALESCE(SUM(c.quantity), 0) as sum from cart_shop as cs
+inner join shop_bill as sb on sb.shop_bill_id=cs.shop_bill_id
+inner join cart as c on c.cart_id=cs.cart_id
+inner join bill as b on b.bill_id=sb.bill_id
+where sb.status=2 and createBy=${idUser} and c.product_id=${idProduct}`, (err, data) => {
             if (err) reject(err);
-            else resolve(data.length)
+            else resolve(data[0].sum)
         })
     })
 }
@@ -40,12 +41,12 @@ Bill.getBillOfUser = (id, status, result) => {
         else result(data)
     })
 }
-Bill.getBillReceivedOfUser = (id, result) => {
-    db.query(`SELECT * FROM bill WHERE status='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
-        if (err) console.log(err);
-        else result(data)
-    })
-}
+// Bill.getBillReceivedOfUser = (id, result) => {
+//     db.query(`SELECT * FROM bill WHERE status='2' and createBy=${id} ORDER BY createAt DESC`, (err, data) => {
+//         if (err) console.log(err);
+//         else result(data)
+//     })
+// }
 Bill.getOne = (id, result) => {
     db.query(`SELECT * FROM bill WHERE bill_id=${id} `, (err, data) => {
         if (err) console.log(err);

@@ -66,6 +66,7 @@ const ProductDetailResponse = function (product) {
     this.initHaveSales = async () => {
         try {
             this.haveSales = await Product.findHaveSales(product.product_id)
+            console.log("sale " + this.haveSales);
         } catch (error) {
             console.log(error);
         }

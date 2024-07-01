@@ -235,7 +235,10 @@ class ProductController {
 
     }
     getByCategory = function (req, res, next) {
-        Product.getByCategory(req.params.id, (data) => {
+        let query = '';
+        if (req.query.index = 'newest') query = 'ORDER BY createAt desc'
+        else if (req.query.index = 'topsale') query = 'topsale'
+        Product.getByCategory(req.params.id, query, (data) => {
             const products = data.map(async (productData) => {
                 const fav = {
                     product_id: productData.product_id,
@@ -251,10 +254,12 @@ class ProductController {
             })
             Promise.all(products)
                 .then(async (productsWithData) => {
-                    const oldCate = await Category.findOne(req.params.id);
+                    let oldCate = await Category.findOne(req.params.id);
                     if (oldCate.category_parent_id) {
                         oldCate.category_id = oldCate.category_parent_id;
                     }
+
+                    oldCate = await Category.findOne(oldCate.category_id);
                     const category = new CategoryResponse(oldCate, CategoryResponse)
                     await category.initCateChild();
                     res.locals.productsWithData = productsWithData;
@@ -262,6 +267,7 @@ class ProductController {
                     next();
                 })
                 .catch((error) => {
+                    console.log(error)
                     res.status(500).send({ message: "Error fetching product data", error });
                 });
         })
