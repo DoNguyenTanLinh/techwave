@@ -47,7 +47,16 @@ const deleteAllOption = function (id) {
         console.log(err)
     }
 }
-
+const deleteCart = async function (id) {
+    try {
+        await db.query("DELETE FROM cart WHERE product_id = ?", [id]);
+    }
+    catch (err) {
+        await db.rollback();
+        console.error(err);
+        throw err;
+    }
+}
 const deleteAllCart = async function (id) {
     try {
         const cartIds = await db.query("SELECT cart_id FROM cart WHERE product_id= ?", [id]);
@@ -83,4 +92,4 @@ const deleteAllProductByAccount = async function (id) {
         console.log(err)
     }
 }
-module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay }
+module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay, deleteCart }
