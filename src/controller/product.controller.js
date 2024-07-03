@@ -224,7 +224,6 @@ class ProductController {
             deleteDetail(id);
             deleteAllOption(id);
             setDeleteProduct(id);
-            await deleteAllCart(id);
             await deleteReviewByProduct(id)
             Product.delete(id, (data) => {
                 res.json(data);

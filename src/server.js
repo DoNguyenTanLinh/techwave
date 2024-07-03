@@ -13,6 +13,7 @@ cloudinary.config({
 });
 var corsOption = {
     origin: 'http://localhost:3001',
+    // origin: 'https://techwave-fe.vercel.app/',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization',

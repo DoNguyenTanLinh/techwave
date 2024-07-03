@@ -30,7 +30,7 @@ class PaymentController {
                     shopData.bill_id = billId;
                     const shopCreateData = new ShopBillResquest(shopData, ShopBillResquest)
                     const idShop = await ShopBill.insertShopBill(shopCreateData);
-                    await updateDiscount(shopData.voucher_id, req.user.id)
+                    if (shopData.voucher_id) await updateDiscount(shopData.voucher_id, req.user.id)
                     const cart = shopData.cart;
                     await Promise.all(cart.map(async (cartData) => {
                         cartData.shop_bill_id = idShop;
@@ -43,7 +43,7 @@ class PaymentController {
                     console.log("map Payment Cart: ", error);
                 }
             }))
-            await updateDiscount(req.body.voucher_id, req.user.id)
+            if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
             res.status(200).json({ status: "ok", message: "success" })
         } catch (error) {
             console.error("createPayment Error: ", error);
