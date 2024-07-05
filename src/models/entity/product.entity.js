@@ -146,7 +146,18 @@ Product.delete = function (id, result) {
         result({ message: "Error delete Product" })
     }
 }
-
+Product.getProductTrend = function (result) {
+    db.query(`SELECT sum(cs.price),p.* from shop_bill as sb
+                inner join cart_shop as cs on cs.shop_bill_id=sb.shop_bill_id
+                inner join cart as c on c.cart_id=cs.cart_id
+                inner join product as p on c.product_id=p.product_id
+                where sb.status=2
+                group by c.product_id
+                LIMIT 5`, (err, data) => {
+        if (err) { console.log(err); }
+        else result(data)
+    })
+}
 Product.getByCategory = function (id, query, result) {
     try {
         if (query = 'topsale') {

@@ -127,6 +127,7 @@ class ProductController {
     }
     getOne_product = function (req, res) {
         Product.getDetails(req.params.id, async (data) => {
+
             const fav = {
                 product_id: data.product_id,
                 account_id: req.user.id
@@ -233,6 +234,34 @@ class ProductController {
             console.log(err)
         }
 
+    }
+    getProductTrend = function (req, res) {
+        Product.getProductTrend((data) => {
+
+            const products = data.map(async (productData) => {
+                const fav = {
+                    product_id: productData.product_id,
+                    account_id: req.user.id
+                }
+                const product = new ProductResponse(productData, ProductResponse);
+                await product.init()
+                await product.getStatus(fav)
+                await product.initHaveSales();
+                await product.initPlace();
+                await product.initRating();
+                return product;
+            })
+            Promise.all(products)
+                .then(async (productsWithData) => {
+
+                    res.json({ data: productsWithData })
+
+                })
+                .catch((error) => {
+                    console.log(error)
+                    res.status(500).send({ message: "Error fetching product data", error });
+                });
+        })
     }
     getByCategory = function (req, res, next) {
         let query = '';

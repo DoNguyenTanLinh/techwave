@@ -21,6 +21,7 @@ const BillResponse = function (data) {
             this.user.phone = data.phone
             this.user.address = data.address
             this.paid = await Payment.getStatusPaid(data.bill_id)
+            console.log(data.shop_bill_id);
             this.shop_bill_id = await ShopBill.findCartsShop(data.shop_bill_id);
         } catch (e) {
             console.log(e);

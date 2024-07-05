@@ -37,7 +37,7 @@ ShopBill.insertShopBill = (shop) => {
 }
 ShopBill.findCartsShop = (shopBillID) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM cart_shop where shop_bill_id = ? `, shopBillID, (err, data) => {
+        db.query(`SELECT * FROM cart_shop as cs inner join cart as c on c.cart_id=cs.cart_id where shop_bill_id = ? `, shopBillID, (err, data) => {
             if (err) reject(err)
             else {
                 Promise.all(data.map(async shop => {

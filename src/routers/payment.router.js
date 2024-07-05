@@ -3,6 +3,7 @@ const router = express.Router();
 let $ = require('jquery');
 const request = require('request');
 const moment = require('moment');
+const updateDiscount = require('../middleware/discount.Action');
 const paymentController = require('../controller/payment.controller');
 const BillResquest = require('../models/resquest/bill.resquest');
 const Bill = require('../models/entity/bill.entity');
@@ -103,6 +104,7 @@ router.post('/create_payment_url', async function (req, res, next) {
         const data = new BillResquest(bill, BillResquest);
         let carts = req.body.carts;
         data.createBy = req.user.id;
+        //console.log("BoDY:      ", req.body);
         const results = await Promise.all(carts.map(async (cartData) => {
             const cart = await Cart.findById(cartData.cart_id);
             setCartForPayment(cart.cart_id);

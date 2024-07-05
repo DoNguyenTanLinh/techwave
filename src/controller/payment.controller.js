@@ -33,6 +33,7 @@ class PaymentController {
                     if (shopData.voucher_id) await updateDiscount(shopData.voucher_id, req.user.id)
                     const cart = shopData.cart;
                     await Promise.all(cart.map(async (cartData) => {
+                        setCartForPayment(cartData.cart_id)
                         cartData.shop_bill_id = idShop;
                         const cartCreateData = new CartShopResquest(cartData, CartShopResquest)
                         await CartShop.insertCart(cartCreateData);

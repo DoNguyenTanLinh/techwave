@@ -35,11 +35,11 @@ const extractToken = (req) => {
     return null;
 }
 const checkUserJWT = async (req, res, next) => {
-
     req.api = `/${req.path.split('/')[2]}`
     let cookie = req.cookies;
     const tokenFromHeader = extractToken(req);
     if ((cookie && cookie.jwt) || tokenFromHeader) {
+
         let token = cookie && cookie.jwt ? cookie.jwt : tokenFromHeader;
         let decoded = await verifyToken(token);
         if (decoded) {
@@ -55,7 +55,6 @@ const checkUserJWT = async (req, res, next) => {
     }
     else {
         // if (nonSecure.includes(req.api)) return next();
-
         if (req.path.split('/')[4] === 'vnpay_return') next();
         else if (abc.includes(req.api)) {
             console.log("Authentication");
@@ -99,6 +98,7 @@ const checkUserPermission = (req, res, next) => {
     else return next();
 }
 const checkUserAction = (req, res, next) => {
+
     // if (nonSecure.includes(req.api)) return next();
     if (req.path.split('/')[4] === 'vnpay_return') next();
     else if (abc.includes(req.api)) {

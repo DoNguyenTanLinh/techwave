@@ -11,6 +11,7 @@ home.post('/product/favor/:id', favProductController.add_fav_product)
 home.delete('/product/deletefavor/:id', favProductController.delete_favor_product)
 home.get('/product/:id', productController.getOne_product)
 home.get('/product', productController.getAllForUser_product)
+home.get('/category/trend', productController.getProductTrend)
 home.get('/category/:id', productController.getByCategory, (req, res) => {
     const productsWithData = res.locals.productsWithData;
     const listCate = res.locals.listCate;
