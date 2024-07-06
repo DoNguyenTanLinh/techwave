@@ -92,4 +92,12 @@ const deleteAllProductByAccount = async function (id) {
         console.log(err)
     }
 }
-module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay, deleteCart }
+
+const update_product = async function (id, quantity) {
+    try {
+        db.query(`UPDATE product SET quantity=${quantity} WHERE product_id=${id}`)
+    } catch (err) {
+        console.log("Product Action: ", err)
+    }
+}
+module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay, deleteCart, update_product }

@@ -10,6 +10,7 @@ const reportRouter = require('./report.router');
 const paymentRouter = require('./payment.router');
 const reviewRouter = require('./review.router');
 const discountRouter = require('./discount.router');
+const checkPaymentAction = require('../middleware/checkpayment.Action');
 user.use('/discount', discountRouter);
 user.use('/account', accountRouter);
 user.use('/cart', cartRouter)
@@ -18,7 +19,8 @@ user.use('/report', reportRouter);
 user.use('/folow', folowRouter);
 user.use('/payment', paymentRouter);
 user.use('/review', reviewRouter)
-user.post('/createBill', paymentController.createPayment)
+// user.post('/createBill', checkPaymentAction)
+user.post('/createBill', checkPaymentAction, paymentController.createPayment)
 // user.get('/payment', paymentController.getPaymentMethods)
 user.get('/favor-product', favorProductController.get_favor_product);
 module.exports = user;

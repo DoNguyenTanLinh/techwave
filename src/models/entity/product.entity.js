@@ -1,3 +1,4 @@
+const { error } = require('jquery');
 const db = require('../../connection/connect')
 const date = require('date-and-time');
 const Product = function (product) {
@@ -198,5 +199,13 @@ Product.getByCategoryStore = function (idStore, idCate) {
         })
     })
 
+}
+Product.getQuantityProduct = async (idProduct) => {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT quantity FROM product where product_id=${idProduct}`, (err, data) => {
+            if (err) reject(err)
+            else resolve(data[0].quantity)
+        })
+    })
 }
 module.exports = Product;

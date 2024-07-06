@@ -13,7 +13,6 @@ const Discount = function (discount) {
 Discount.getDiscountShopAuto = (idShop, price, result) => {
     const now = new Date();
     const day = date.format(now, 'YYYY/MM/DD');
-    console.log(day);
     db.query(`SELECT derived.discount_id,
     CAST(IF(price >= 0, derived.mdPrice, price2) as UNSIGNED) AS result, 
     derived.discount

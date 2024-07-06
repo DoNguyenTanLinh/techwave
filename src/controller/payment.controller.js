@@ -2,13 +2,14 @@ const Bill = require('../models/entity/bill.entity');
 const { Payment } = require('../models/response/payment.response')
 const BillResquest = require('../models/resquest/bill.resquest')
 const { setCartForPayment } = require('../middleware/cart.Action')
-const { updateQuantity } = require('../middleware/product.Action');
+const { updateQuantity, update_product } = require('../middleware/product.Action');
 const updateDiscount = require('../middleware/discount.Action');
 const Cart = require('../models/entity/cart.entity');
 const ShopBillResquest = require('../models/resquest/shop_bill.request');
 const ShopBill = require('../models/entity/shop_bill.enitity');
 const CartShopResquest = require('../models/resquest/cart_shop.request');
 const CartShop = require('../models/entity/cart_shop.entity');
+const Product = require('../models/entity/product.entity');
 
 class PaymentController {
     getPaymentMethods = async (req, res) => {
@@ -33,6 +34,9 @@ class PaymentController {
                     if (shopData.voucher_id) await updateDiscount(shopData.voucher_id, req.user.id)
                     const cart = shopData.cart;
                     await Promise.all(cart.map(async (cartData) => {
+                        var quantityProduct = await Product.getQuantityProduct(cartData.product.product_id);
+                        var quantityUpdate = quantityProduct - cartData.quantity
+                        await update_product(cartData.product.product_id, quantityUpdate)
                         setCartForPayment(cartData.cart_id)
                         cartData.shop_bill_id = idShop;
                         const cartCreateData = new CartShopResquest(cartData, CartShopResquest)
