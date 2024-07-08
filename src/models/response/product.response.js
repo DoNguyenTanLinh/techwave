@@ -146,6 +146,7 @@ const ProductResponse = function (product) {
     this.price = product.price;
     this.promotional_price = product.promotional_price;
     this.image = product.image;
+    this.quantity = product.quantity;
     this.option = null;
     this.rating = null;
     this.haveSales = null;
