@@ -3,16 +3,17 @@ require('dotenv').config();
 const util = require('util');
 var connection = mysql.createConnection(
     {
-        // host: "sql10.freesqldatabase.com",
-        // user: "sql10670611",
-        // password: "wRlttwNYDt",
-        // database: 'sql10670611',
-        // port: 3306
-        host: process.env.HostDB,
-        user: process.env.UserDB,
-        password: process.env.PassDB,
-        database: process.env.DBName,
-        port: process.env.PORT
+        host: "techwave-linhltv9a2-d660.d.aivencloud.com",
+        user: "avnadmin",
+        password: "AVNS_SQLD89AF0idjjh-QBhO",
+        database: 'techwave',
+        port: 22006,
+        connectTimeout: 30000
+        // host: process.env.HostDB,
+        // user: process.env.UserDB,
+        // password: process.env.PassDB,
+        // database: process.env.DBName,
+        // port: process.env.PORT_DB
     }
 );
 connection.connect((error) => {
