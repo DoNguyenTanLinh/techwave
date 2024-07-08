@@ -96,7 +96,7 @@ Store.getJoin = (id) => {
 }
 Store.getRevenue = (idVendor) => {
     return new Promise((resolve, reject) => {
-        db.query(`select sum(totalbill) as revenue from shop_bill where shop_id=${idVendor}`, (err, result) => {
+        db.query(`select COALESCE(SUM(totalbill), 0) AS revenue from shop_bill where shop_id=${idVendor} and status=2`, (err, result) => {
             if (err) reject(err);
             else resolve(result[0].revenue)
         })

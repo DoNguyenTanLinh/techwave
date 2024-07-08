@@ -11,8 +11,9 @@ cloudinary.config({
     api_key: process.env.CLOUNDINARY_API_KEY,
     api_secret: process.env.CLOUNDINARY_API_SECRET
 });
+const allowedOrigins = ['http://localhost:3001', 'https://techwave-fe.vercel.app'];
 var corsOption = {
-    origin: 'http://localhost:3001',
+    origin: allowedOrigins,
     // origin: 'https://techwave-fe.vercel.app/',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

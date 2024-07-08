@@ -1,6 +1,7 @@
 const db = require('../../connection/connect');
 const date = require('date-and-time');
 const ShopBill = require('./shop_bill.enitity');
+const Product = require('./product.entity');
 const Bill = function (bill) {
     this.bill_id = bill.bill_id;
     this.fullname = bill.fullname;
@@ -27,7 +28,7 @@ Bill.getBillOfVender = (id, status, result) => {
     db.query(`select b.*, ac.username, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill,sb.status from bill as b
     inner join shop_bill as sb on sb.bill_id=b.bill_id
     inner join account as ac on ac.account_id=sb.shop_id
-    WHERE sb.shop_id=${id} and sb.status=${status} ORDER BY createAt DESC`, (err, data) => {
+    WHERE sb.shop_id=${id} and sb.status like '${status}' ORDER BY createAt DESC`, (err, data) => {
         if (err) console.log(err);
         else result(data)
     })
@@ -84,17 +85,28 @@ Bill.approve = async (id, result) => {
 Bill.reject = async (id, result) => {
     try {
         const shopBillID = await ShopBill.getShopBillofBill(id);
-        Promise.all(shopBillID.map(async (idshop) => {
-            db.query(`UPDATE shop_bill SET status='3' WHERE shop_bill_id=${idshop.shop_bill_id}`)
-        }))
-            .then(() => {
-                result({ s: 200, message: "success" })
-            })
-            .catch(err => result({ s: 400, message: err }))
+        await Promise.all(shopBillID.map(async (idshop) => {
+            const query = `
+            SELECT * FROM shop_bill as sb
+            INNER JOIN cart_shop as cs ON cs.shop_bill_id = sb.shop_bill_id
+            INNER JOIN cart as c ON c.cart_id = cs.cart_id
+            WHERE sb.shop_bill_id = ? AND c.status = '1'
+            `;
+            const [results] = await db.promise().query(query, [idshop.shop_bill_id]);
+
+            await Promise.all(results.map(async (result) => {
+                const quantityProduct = await Product.getQuantityProduct(result.product_id);
+                const updateQuery = `UPDATE product SET quantity = ? WHERE product_id = ?`;
+                await db.query(updateQuery, [quantityProduct + result.quantity, result.product_id]);
+                await db.query(`UPDATE shop_bill SET status='3' WHERE shop_bill_id=${result.shop_bill_id}`)
+            }));
+        }));
+
+        result({ s: 200, message: "success" });
     } catch (err) {
-        console.log(err);
-        result({ s: 400, message: err })
+        result({ s: 400, message: err.message });
     }
+
 }
 Bill.setReceived = async (id, userId, result) => {
     try {
@@ -114,16 +126,26 @@ Bill.setReceived = async (id, userId, result) => {
 Bill.setCancel = async (id, userId, result) => {
     try {
         const shopBillID = await ShopBill.getShopBillofUser(id, userId);
-        Promise.all(shopBillID.map(async (idshop) => {
-            db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${idshop.shop_bill_id}`)
-        }))
-            .then(() => {
-                result({ s: 200, message: "success" })
-            })
-            .catch(err => result({ s: 400, message: err }))
+        await Promise.all(shopBillID.map(async (idshop) => {
+            const query = `
+            SELECT * FROM shop_bill as sb
+            INNER JOIN cart_shop as cs ON cs.shop_bill_id = sb.shop_bill_id
+            INNER JOIN cart as c ON c.cart_id = cs.cart_id
+            WHERE sb.shop_bill_id = ? AND c.status = '1'
+            `;
+            const [results] = await db.promise().query(query, [idshop.shop_bill_id]);
+
+            await Promise.all(results.map(async (result) => {
+                const quantityProduct = await Product.getQuantityProduct(result.product_id);
+                const updateQuery = `UPDATE product SET quantity = ? WHERE product_id = ?`;
+                await db.query(updateQuery, [quantityProduct + result.quantity, result.product_id]);
+                await db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${result.shop_bill_id}`)
+            }));
+        }));
+
+        result({ s: 200, message: "success" });
     } catch (err) {
-        console.log(err);
-        result({ s: 400, message: err })
+        result({ s: 400, message: err.message });
     }
 }
 Bill.delete = (id, result) => {
