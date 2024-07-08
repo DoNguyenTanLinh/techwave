@@ -18,6 +18,7 @@ const checkPaymentAction = (req, res, next) => {
                     quantity += 1;
 
                 } else {
+                    cartdata.product.quantity = quantityProduct;
                     product.push(cartdata);
                 }
             }
