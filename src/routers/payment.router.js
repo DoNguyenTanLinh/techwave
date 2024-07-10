@@ -50,7 +50,7 @@ router.post('/create_payment_url', async function (req, res, next) {
     let returnUrl = req.body.returnUrl;
     // let returnUrl = config.get('vnp_ReturnUrl');
     let orderId = moment(date).format('DDHHmmss');
-    let amount = req.body.amount;
+    let amount = req.body.totalBill;
     let bankCode = req.body.bankCode;
 
     let locale = req.body.language;
@@ -71,14 +71,6 @@ router.post('/create_payment_url', async function (req, res, next) {
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
-    let bill = {
-        fullname: req.body.fullname,
-        phone: req.body.phone,
-        address: req.body.address,
-        express: req.body.express,
-        payment: "VNPAY",
-        payment_id: orderId
-    }
     updateDiscount(req.body.idDicount, req.user.id)
     if (bankCode !== null && bankCode !== '') {
         vnp_Params['vnp_BankCode'] = bankCode;
@@ -101,18 +93,34 @@ router.post('/create_payment_url', async function (req, res, next) {
     }
     Payment.create(payment)
     try {
-        const data = new BillResquest(bill, BillResquest);
-        let carts = req.body.carts;
+        const data = new BillResquest(req.body, BillResquest);
+        const shop = req.body.shop;
         data.createBy = req.user.id;
-        //console.log("BoDY:      ", req.body);
-        const results = await Promise.all(carts.map(async (cartData) => {
-            const cart = await Cart.findById(cartData.cart_id);
-            setCartForPayment(cart.cart_id);
-            data.cart_id = cart.cart_id;
-            data.totalBill = cart.price * cart.quantity;
-            const bill = Bill.create(data);
-            return { cart, bill }
-        }));
+        data.payment = "VNPAY";
+        const billId = await Bill.create(billData)
+        Promise.all(shop.map(async (shopData) => {
+            try {
+                shopData.bill_id = billId;
+                const shopCreateData = new ShopBillResquest(shopData, ShopBillResquest)
+                const idShop = await ShopBill.insertShopBill(shopCreateData);
+                if (shopData.voucher_id) await updateDiscount(shopData.voucher_id, req.user.id)
+                const cart = shopData.cart;
+                await Promise.all(cart.map(async (cartData) => {
+                    var quantityProduct = await Product.getQuantityProduct(cartData.product.product_id);
+                    var quantityUpdate = quantityProduct - cartData.quantity
+                    await update_product(cartData.product.product_id, quantityUpdate)
+                    setCartForPayment(cartData.cart_id)
+                    cartData.shop_bill_id = idShop;
+                    const cartCreateData = new CartShopResquest(cartData, CartShopResquest)
+                    await CartShop.insertCart(cartCreateData);
+                }))
+
+            }
+            catch (error) {
+                console.log("map Payment Cart: ", error);
+            }
+        }))
+        if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
     } catch (error) {
         console.error(error);
         res.status(500).send("Error fetching cart data");

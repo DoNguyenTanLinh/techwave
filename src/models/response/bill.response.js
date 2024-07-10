@@ -13,7 +13,8 @@ const BillResponse = function (data) {
     this.shopname = data.username;
     this.paid = null;
     this.payment_id = null;
-    this.shop_bill_id = null;
+    this.shop_bill_id = data.shop_bill_id;
+    this.cart_shop = null;
     this.init = async () => {
         try {
             this.user = await Account.getInfoAccountBill(data.createBy)
@@ -21,8 +22,7 @@ const BillResponse = function (data) {
             this.user.phone = data.phone
             this.user.address = data.address
             this.paid = await Payment.getStatusPaid(data.bill_id)
-            console.log(data.shop_bill_id);
-            this.shop_bill_id = await ShopBill.findCartsShop(data.shop_bill_id);
+            this.cart_shop = await ShopBill.findCartsShop(data.shop_bill_id);
         } catch (e) {
             console.log(e);
         }

@@ -125,23 +125,23 @@ Bill.setReceived = async (id, userId, result) => {
 }
 Bill.setCancel = async (id, userId, result) => {
     try {
-        const shopBillID = await ShopBill.getShopBillofUser(id, userId);
-        await Promise.all(shopBillID.map(async (idshop) => {
-            const query = `
+        // const shopBillID = await ShopBill.getShopBillofUser(id, userId);
+
+        const query = `
             SELECT * FROM shop_bill as sb
             INNER JOIN cart_shop as cs ON cs.shop_bill_id = sb.shop_bill_id
             INNER JOIN cart as c ON c.cart_id = cs.cart_id
             WHERE sb.shop_bill_id = ? AND c.status = '1'
             `;
-            const [results] = await db.promise().query(query, [idshop.shop_bill_id]);
+        const [results] = await db.promise().query(query, [id]);
 
-            await Promise.all(results.map(async (result) => {
-                const quantityProduct = await Product.getQuantityProduct(result.product_id);
-                const updateQuery = `UPDATE product SET quantity = ? WHERE product_id = ?`;
-                await db.query(updateQuery, [quantityProduct + result.quantity, result.product_id]);
-                await db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${result.shop_bill_id}`)
-            }));
+        Promise.all(results.map(async (result) => {
+            const quantityProduct = await Product.getQuantityProduct(result.product_id);
+            const updateQuery = `UPDATE product SET quantity = ? WHERE product_id = ?`;
+            await db.query(updateQuery, [quantityProduct + result.quantity, result.product_id]);
+            await db.query(`UPDATE shop_bill SET status='4' WHERE shop_bill_id=${result.shop_bill_id}`)
         }));
+
 
         result({ s: 200, message: "success" });
     } catch (err) {

@@ -10,7 +10,11 @@ const ShopBill = require('../models/entity/shop_bill.enitity');
 const CartShopResquest = require('../models/resquest/cart_shop.request');
 const CartShop = require('../models/entity/cart_shop.entity');
 const Product = require('../models/entity/product.entity');
-
+const handlebars = require('handlebars');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+require('dotenv').config();
+const { transporter } = require('../service/SendMail')
 class PaymentController {
     getPaymentMethods = async (req, res) => {
         const cart = new Payment();
@@ -19,7 +23,7 @@ class PaymentController {
         await cart.initCart(req.body.cart_id);
         res.json(cart);
     }
-    createPayment = async (req, res) => {
+    createPayment = async (req, res, next) => {
         try {
             const billData = new BillResquest(req.body, BillResquest)
             const shop = req.body.shop;
@@ -49,11 +53,65 @@ class PaymentController {
                 }
             }))
             if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
-            res.status(200).json({ status: "ok", message: "success" })
+            const email = {
+                fullname: req.body.fullname,
+                address: req.body.phone,
+                district: req.body.address + ' ' + req.body.ward,
+                province: req.body.district + ' ' + req.body.province,
+                payment: billData.payment,
+                incompletedTotal: req.body.incompletedTotal,
+                shipFee: req.body.shipFee,
+                totalVoucherDiscount: req.body.totalVoucherDiscount,
+                totalBill: req.body.totalBill,
+                products: {
+
+                }
+            }
+            next();
         } catch (error) {
             console.error("createPayment Error: ", error);
             res.status(500).json({ status: "error", message: "Internal Server Error" });
         }
+    }
+    createEmail = function (req, res) {
+        // const data = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+        // const products = data.products;
+        // const recipient = data.recipient;
+
+        // Định nghĩa helper shortenText để cắt ngắn văn bản
+        handlebars.registerHelper('shortenText', (text, maxLength) => {
+            if (text.length > maxLength) {
+                return text.substring(0, maxLength) + '...';
+            }
+            return text;
+        });
+
+        // Đọc template Handlebars
+        const source = fs.readFileSync('../../teamplate/index.hbs', 'utf-8');
+        const template = handlebars.compile(source);
+
+        // Render template với dữ liệu sản phẩm
+        const htmlToSend = template({ products });
+
+        // Cấu hình transporter của Nodemailer
+
+
+        // Cấu hình email
+        let mailOptions = {
+            from: 'techwaveute@gmail.com',
+            to: email.email,
+            subject: 'Hoá đơn mua hàng tại techwave',
+            html: htmlToSend
+        };
+
+        // Gửi email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                res.status(400).json({ status: "error", message: error });
+            }
+            console.log('Email sent: ' + info.response);
+            res.status(200).json({ status: "ok", message: "success" })
+        });
     }
 
 }
