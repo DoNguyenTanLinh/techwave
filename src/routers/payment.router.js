@@ -11,6 +11,8 @@ const Payment = require('../models/entity/payment.entity');
 const { setCartForPayment } = require('../middleware/cart.Action')
 const { updateQuantityByVNPay } = require('../middleware/product.Action');
 const Cart = require('../models/entity/cart.entity');
+const checkPaymentAction = require('../middleware/checkpayment.Action');
+
 router.get('/', function (req, res, next) {
     res.render('orderlist', { title: 'Danh sách đơn hàng' })
 });
@@ -32,7 +34,7 @@ router.get('/refund', function (req, res, next) {
 });
 
 
-router.post('/create_payment_url', async function (req, res, next) {
+router.post('/create_payment_url', checkPaymentAction, async function (req, res, next) {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
     let date = new Date();
     let createDate = moment(date).format('YYYYMMDDHHmmss');

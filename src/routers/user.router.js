@@ -21,6 +21,7 @@ user.use('/payment', paymentRouter);
 user.use('/review', reviewRouter)
 // user.post('/createBill', checkPaymentAction)
 user.post('/createBill', checkPaymentAction, paymentController.createPayment, paymentController.createEmail)
+// user.post('/createBill', paymentController.createPayment, paymentController.createEmail)
 // user.get('/payment', paymentController.getPaymentMethods)
 user.get('/favor-product', favorProductController.get_favor_product);
 module.exports = user;

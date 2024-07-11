@@ -13,6 +13,7 @@ const Product = require('../models/entity/product.entity');
 const handlebars = require('handlebars');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 const { transporter } = require('../service/SendMail')
 class PaymentController {
@@ -30,6 +31,7 @@ class PaymentController {
             billData.createBy = req.user.id;
             billData.payment = 'Thanh toán khi nhận hàng';
             const billId = await Bill.create(billData)
+            var products = []
             Promise.all(shop.map(async (shopData) => {
                 try {
                     shopData.bill_id = billId;
@@ -45,29 +47,39 @@ class PaymentController {
                         cartData.shop_bill_id = idShop;
                         const cartCreateData = new CartShopResquest(cartData, CartShopResquest)
                         await CartShop.insertCart(cartCreateData);
+                        var product = {
+                            name: cartData.product.name,
+                            quantity: cartData.quantity,
+                            image: cartData.product.image,
+                            option: cartData.option.name,
+                            price: cartData.price
+                        }
+                        products.push(product);
+                        return products;
                     }))
 
                 }
                 catch (error) {
                     console.log("map Payment Cart: ", error);
                 }
-            }))
-            if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
-            const email = {
-                fullname: req.body.fullname,
-                address: req.body.phone,
-                district: req.body.address + ' ' + req.body.ward,
-                province: req.body.district + ' ' + req.body.province,
-                payment: billData.payment,
-                incompletedTotal: req.body.incompletedTotal,
-                shipFee: req.body.shipFee,
-                totalVoucherDiscount: req.body.totalVoucherDiscount,
-                totalBill: req.body.totalBill,
-                products: {
-
+                if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
+                const email = {
+                    fullname: req.body.fullname,
+                    email: req.body.email,
+                    address: req.body.phone,
+                    district: req.body.address + ' ' + req.body.ward,
+                    province: req.body.district + ' ' + req.body.province,
+                    payment: billData.payment,
+                    incompletedTotal: req.body.incompletedTotal,
+                    shipFee: req.body.shipFee,
+                    totalVoucherDiscount: req.body.totalVoucherDiscount,
+                    totalBill: req.body.totalBill,
+                    products: products
                 }
-            }
-            next();
+                req.email = email
+                next();
+            }))
+
         } catch (error) {
             console.error("createPayment Error: ", error);
             res.status(500).json({ status: "error", message: "Internal Server Error" });
@@ -79,20 +91,20 @@ class PaymentController {
         // const recipient = data.recipient;
 
         // Định nghĩa helper shortenText để cắt ngắn văn bản
+
         handlebars.registerHelper('shortenText', (text, maxLength) => {
             if (text.length > maxLength) {
                 return text.substring(0, maxLength) + '...';
             }
             return text;
         });
-
-        // Đọc template Handlebars
-        const source = fs.readFileSync('../../teamplate/index.hbs', 'utf-8');
+        const filePath = path.resolve(__dirname, '../../teamplate/index.hbs');
+        const source = fs.readFileSync(filePath, 'utf-8');
         const template = handlebars.compile(source);
+        const email = req.email;
 
-        // Render template với dữ liệu sản phẩm
-        const htmlToSend = template({ products });
-
+        // // Render template với dữ liệu sản phẩm
+        const htmlToSend = template(email);
         // Cấu hình transporter của Nodemailer
 
 
