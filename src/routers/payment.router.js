@@ -4,6 +4,7 @@ let $ = require('jquery');
 const request = require('request');
 const moment = require('moment');
 const updateDiscount = require('../middleware/discount.Action');
+const { updateQuantity, update_product } = require('../middleware/product.Action');
 const paymentController = require('../controller/payment.controller');
 const BillResquest = require('../models/resquest/bill.resquest');
 const Bill = require('../models/entity/bill.entity');
@@ -12,7 +13,11 @@ const { setCartForPayment } = require('../middleware/cart.Action')
 const { updateQuantityByVNPay } = require('../middleware/product.Action');
 const Cart = require('../models/entity/cart.entity');
 const checkPaymentAction = require('../middleware/checkpayment.Action');
-
+const ShopBillResquest = require('../models/resquest/shop_bill.request');
+const ShopBill = require('../models/entity/shop_bill.enitity');
+const CartShopResquest = require('../models/resquest/cart_shop.request');
+const CartShop = require('../models/entity/cart_shop.entity');
+const Product = require('../models/entity/product.entity');
 router.get('/', function (req, res, next) {
     res.render('orderlist', { title: 'Danh sách đơn hàng' })
 });
@@ -73,7 +78,6 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
-    updateDiscount(req.body.idDicount, req.user.id)
     if (bankCode !== null && bankCode !== '') {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
@@ -94,12 +98,15 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
         url: vnpUrl
     }
     Payment.create(payment)
+    var data = req.body;
+    data.payment_id = orderId;
     try {
-        const data = new BillResquest(req.body, BillResquest);
+        const billData = new BillResquest(data, BillResquest)
         const shop = req.body.shop;
-        data.createBy = req.user.id;
-        data.payment = "VNPAY";
+        billData.createBy = req.user.id;
+        billData.payment = 'VNPay';
         const billId = await Bill.create(billData)
+        var products = []
         Promise.all(shop.map(async (shopData) => {
             try {
                 shopData.bill_id = billId;
@@ -115,21 +122,47 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
                     cartData.shop_bill_id = idShop;
                     const cartCreateData = new CartShopResquest(cartData, CartShopResquest)
                     await CartShop.insertCart(cartCreateData);
+                    var product = {
+                        name: cartData.product.name,
+                        quantity: cartData.quantity,
+                        image: cartData.product.image,
+                        option: cartData.option.name,
+                        price: cartData.price
+                    }
+                    products.push(product);
+                    return products;
                 }))
 
             }
             catch (error) {
                 console.log("map Payment Cart: ", error);
+                res.status(400).json({ status: 'error', message: error.message })
             }
+            if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
+            const email = {
+                fullname: req.body.fullname,
+                email: req.body.email,
+                address: req.body.phone,
+                district: req.body.address + ' ' + req.body.ward,
+                province: req.body.district + ' ' + req.body.province,
+                payment: billData.payment,
+                incompletedTotal: req.body.incompletedTotal,
+                shipFee: req.body.shipFee,
+                totalVoucherDiscount: req.body.totalVoucherDiscount,
+                totalBill: req.body.totalBill,
+                products: products
+            }
+            req.email = email
+            req.vnpay = vnpUrl;
+            next();
         }))
-        if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
     } catch (error) {
         console.error(error);
         res.status(500).send("Error fetching cart data");
     }
-    res.json({ http: vnpUrl });
+    // res.json({ http: vnpUrl });
     // res.redirect(vnpUrl)
-});
+}, paymentController.createEmail);
 router.get('/vnpay_return', function (req, res, next) {
     let vnp_Params = req.query;
 

@@ -61,6 +61,7 @@ class PaymentController {
                 }
                 catch (error) {
                     console.log("map Payment Cart: ", error);
+                    res.status(400).json({ status: 'error', message: error.message })
                 }
                 if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
                 const email = {
@@ -86,6 +87,7 @@ class PaymentController {
         }
     }
     createEmail = function (req, res) {
+
         // const data = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
         // const products = data.products;
         // const recipient = data.recipient;
@@ -122,6 +124,8 @@ class PaymentController {
                 res.status(400).json({ status: "error", message: error });
             }
             console.log('Email sent: ' + info.response);
+            if (req.vnpay)
+                res.json({ http: req.vnpay });
             res.status(200).json({ status: "ok", message: "success" })
         });
     }
