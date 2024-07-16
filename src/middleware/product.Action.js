@@ -21,22 +21,7 @@ const updateQuantity = function (cartId) {
         }
     })
 }
-const updateQuantityByVNPay = function (paymentId) {
-    db.query(`SELECT c.*,p.quantity as productQuantity FROM bill as b
-    inner join cart as c on c.cart_id=b.cart_id
-    inner join product as p on c.product_id=p.product_id
-    WHERE b.payment_id=${paymentId}`, (err, data) => {
-        if (err) console.log(err)
-        else {
-            data.map(cart => {
-                let quantity = cart.productQuantity - cart.quantity;
-                db.query(`UPDATE product SET quantity=${quantity} WHERE product_id=${cart.product_id}`, (err) => {
-                    if (err) console.log(err)
-                })
-            })
-        }
-    })
-}
+
 const deleteAllOption = function (id) {
     try {
         db.query(`DELETE FROM options WHERE product_id=${id}`, function (err) {
@@ -100,4 +85,4 @@ const update_product = async function (id, quantity) {
         console.log("Product Action: ", err)
     }
 }
-module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, updateQuantityByVNPay, deleteCart, update_product }
+module.exports = { deleteAllOption, deleteAllCart, deleteAllProductByAccount, updateQuantity, deleteCart, update_product }

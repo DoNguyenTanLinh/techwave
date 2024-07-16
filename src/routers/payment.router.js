@@ -10,7 +10,6 @@ const BillResquest = require('../models/resquest/bill.resquest');
 const Bill = require('../models/entity/bill.entity');
 const Payment = require('../models/entity/payment.entity');
 const { setCartForPayment } = require('../middleware/cart.Action')
-const { updateQuantityByVNPay } = require('../middleware/product.Action');
 const Cart = require('../models/entity/cart.entity');
 const checkPaymentAction = require('../middleware/checkpayment.Action');
 const ShopBillResquest = require('../models/resquest/shop_bill.request');
@@ -90,6 +89,7 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
     let hmac = crypto.createHmac("sha512", secretKey);
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
     vnp_Params['vnp_SecureHash'] = signed;
+    console.log("vnp_Params vnp_SecureHash: " + vnp_Params['vnp_SecureHash']);
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
     let payment = {
@@ -126,7 +126,7 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
                         name: cartData.product.name,
                         quantity: cartData.quantity,
                         image: cartData.product.image,
-                        option: cartData.option.name,
+                        option: cartData.option?.name,
                         price: cartData.price
                     }
                     products.push(product);
@@ -183,9 +183,11 @@ router.get('/vnpay_return', function (req, res, next) {
     let hmac = crypto.createHmac("sha512", secretKey);
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
     let code_id = vnp_Params['vnp_ResponseCode'];
+    console.log("secureHash: " + secureHash);
+    console.log("signed: " + signed);
     if (secureHash === signed) {
         if (code_id == '00') {
-            updateQuantityByVNPay(vnp_Params['vnp_TxnRef'])
+            // updateQuantityByVNPay(vnp_Params['vnp_TxnRef'])
             Payment.update(vnp_Params['vnp_TxnRef'])
             res.json({ message: 'Giao dịch thành công', code: code_id })
         }

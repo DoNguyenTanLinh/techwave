@@ -51,9 +51,10 @@ class PaymentController {
                             name: cartData.product.name,
                             quantity: cartData.quantity,
                             image: cartData.product.image,
-                            option: cartData.option.name,
+                            option: cartData.option?.name,
                             price: cartData.price
                         }
+                        console.log("Product created: " + product);
                         products.push(product);
                         return products;
                     }))
@@ -64,23 +65,24 @@ class PaymentController {
                     res.status(400).json({ status: 'error', message: error.message })
                 }
                 if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
-                const email = {
-                    fullname: req.body.fullname,
-                    email: req.body.email,
-                    address: req.body.phone,
-                    district: req.body.address + ' ' + req.body.ward,
-                    province: req.body.district + ' ' + req.body.province,
-                    payment: billData.payment,
-                    incompletedTotal: req.body.incompletedTotal,
-                    shipFee: req.body.shipFee,
-                    totalVoucherDiscount: req.body.totalVoucherDiscount,
-                    totalBill: req.body.totalBill,
-                    products: products
-                }
-                req.email = email
-                next();
-            }))
 
+
+            }))
+            const email = {
+                fullname: req.body.fullname,
+                email: req.body.email,
+                address: req.body.phone,
+                district: req.body.address + ' ' + req.body.ward,
+                province: req.body.district + ' ' + req.body.province,
+                payment: billData.payment,
+                incompletedTotal: req.body.incompletedTotal,
+                shipFee: req.body.shipFee,
+                totalVoucherDiscount: req.body.totalVoucherDiscount,
+                totalBill: req.body.totalBill,
+                products: products
+            }
+            req.email = email
+            next();
         } catch (error) {
             console.error("createPayment Error: ", error);
             res.status(500).json({ status: "error", message: "Internal Server Error" });
@@ -92,7 +94,7 @@ class PaymentController {
         // const products = data.products;
         // const recipient = data.recipient;
 
-        // Định nghĩa helper shortenText để cắt ngắn văn bản
+        // //Định nghĩa helper shortenText để cắt ngắn văn bản
 
         handlebars.registerHelper('shortenText', (text, maxLength) => {
             if (text.length > maxLength) {

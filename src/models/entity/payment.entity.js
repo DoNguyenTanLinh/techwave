@@ -32,7 +32,7 @@ Payment.create = function (data) {
     })
 }
 Payment.update = function (id) {
-    db.query(`UPDATE payment SET status='1' WHERE payment_id=${id}`, (err) => {
+    db.query(`UPDATE payment SET status=1 WHERE payment_id=${id}`, (err) => {
         if (err) console.log(err);
     })
 }
