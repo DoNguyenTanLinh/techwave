@@ -24,6 +24,7 @@ class DiscountController {
         })
     }
     create_Discount = async (req, res) => {
+        const permission_id = req.user.groupWithRole.permission_id;
         const data = req.body;
         data.name = "";
         data.vendor_id = req.user.id;
@@ -38,7 +39,8 @@ class DiscountController {
         } catch (err) {
             console.error(err);
         }
-        DiscountUser.insertDiscount(result.discount_id);
+        if (permission_id == 1)
+            DiscountUser.insertDiscount(result.discount_id);
         res.json({ message: "successfully", data: result });
     }
     edit_Discount = (req, res) => {

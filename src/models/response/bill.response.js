@@ -14,6 +14,8 @@ const BillResponse = function (data) {
     this.paid = null;
     this.payment_id = null;
     this.shop_bill_id = data.shop_bill_id;
+    this.shipFee = data.shipFee;
+    this.totalVoucherDiscount = data.totalVoucherDiscount;
     this.cart_shop = null;
     this.init = async () => {
         try {

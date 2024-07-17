@@ -54,7 +54,6 @@ class PaymentController {
                             option: cartData.option?.name,
                             price: cartData.price
                         }
-                        console.log("Product created: " + product);
                         products.push(product);
                         return products;
                     }))

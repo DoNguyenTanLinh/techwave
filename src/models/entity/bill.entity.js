@@ -34,7 +34,7 @@ Bill.getBillOfVender = (id, status, result) => {
     })
 }
 Bill.getBillOfUser = (id, status, result) => {
-    db.query(`select b.*, ac.username, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill,sb.status from bill as b
+    db.query(`select b.*, ac.username, sb.shop_bill_id, sb.shop_id, sb.totalbill as Bill,sb.status, sb.totalVoucherDiscount, sb.shipFee from bill as b
     inner join shop_bill as sb on sb.bill_id=b.bill_id
     inner join account as ac on ac.account_id=sb.shop_id
         WHERE createBy=${id} and sb.status like '${status}' ORDER BY createAt DESC`, (err, data) => {
