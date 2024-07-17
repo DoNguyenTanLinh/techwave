@@ -107,7 +107,7 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
         billData.payment = 'VNPay';
         const billId = await Bill.create(billData)
         var products = []
-        Promise.all(shop.map(async (shopData) => {
+        await Promise.all(shop.map(async (shopData) => {
             try {
                 shopData.bill_id = billId;
                 const shopCreateData = new ShopBillResquest(shopData, ShopBillResquest)
@@ -126,7 +126,7 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
                         name: cartData.product.name,
                         quantity: cartData.quantity,
                         image: cartData.product.image,
-                        option: cartData.option?.name,
+                        option: cartData?.option?.name,
                         price: cartData.price
                     }
                     products.push(product);
@@ -139,23 +139,24 @@ router.post('/create_payment_url', checkPaymentAction, async function (req, res,
                 res.status(400).json({ status: 'error', message: error.message })
             }
             if (req.body.voucher_id) await updateDiscount(req.body.voucher_id, req.user.id)
-            const email = {
-                fullname: req.body.fullname,
-                email: req.body.email,
-                address: req.body.phone,
-                district: req.body.address + ' ' + req.body.ward,
-                province: req.body.district + ' ' + req.body.province,
-                payment: billData.payment,
-                incompletedTotal: req.body.incompletedTotal,
-                shipFee: req.body.shipFee,
-                totalVoucherDiscount: req.body.totalVoucherDiscount,
-                totalBill: req.body.totalBill,
-                products: products
-            }
-            req.email = email
-            req.vnpay = vnpUrl;
-            next();
+
         }))
+        const email = {
+            fullname: req.body.fullname,
+            email: req.body.email,
+            address: req.body.phone,
+            district: req.body.address + ' ' + req.body.ward,
+            province: req.body.district + ' ' + req.body.province,
+            payment: billData.payment,
+            incompletedTotal: req.body.incompletedTotal,
+            shipFee: req.body.shipFee,
+            totalVoucherDiscount: req.body.totalVoucherDiscount,
+            totalBill: req.body.totalBill,
+            products: products
+        }
+        req.email = email
+        req.vnpay = vnpUrl;
+        next();
     } catch (error) {
         console.error(error);
         res.status(500).send("Error fetching cart data");

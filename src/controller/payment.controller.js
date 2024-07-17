@@ -32,7 +32,7 @@ class PaymentController {
             billData.payment = 'Thanh toán khi nhận hàng';
             const billId = await Bill.create(billData)
             var products = []
-            Promise.all(shop.map(async (shopData) => {
+            await Promise.all(shop.map(async (shopData) => {
                 try {
                     shopData.bill_id = billId;
                     const shopCreateData = new ShopBillResquest(shopData, ShopBillResquest)
@@ -57,7 +57,6 @@ class PaymentController {
                         products.push(product);
                         return products;
                     }))
-
                 }
                 catch (error) {
                     console.log("map Payment Cart: ", error);
@@ -67,6 +66,7 @@ class PaymentController {
 
 
             }))
+            console.log(products);
             const email = {
                 fullname: req.body.fullname,
                 email: req.body.email,

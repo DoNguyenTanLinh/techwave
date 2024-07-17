@@ -22,7 +22,7 @@ Discount.getDiscountShopAuto = (idShop, price, result) => {
             (${price} * dc.discount * 0.01) AS price2, 
             dc.* 
         FROM discount AS dc 
-        WHERE dc.vendor_id = ${idShop} and minPrice<=${price} and DATE(dc.expires) >= DATE('${day}')
+        WHERE dc.vendor_id = ${idShop} and minPrice<=${price} and DATE(dc.expires) >= DATE('${day}') and dc.minPrice<=${price}
     ) AS derived 
     ORDER BY result desc`, (err, data) => {
         if (err) console.log(err);
@@ -40,7 +40,7 @@ Discount.getDiscountSelect = (idDiscount, price, result) => {
             (${price} * dc.discount * 0.01) AS price2, 
             dc.* 
             FROM discount AS dc 
-            WHERE dc.discount_id=${idDiscount}
+            WHERE dc.discount_id=${idDiscount} and dc.minPrice<=${price}
     ) AS derived `, (err, data) => {
         if (err) console.log(err);
         else result(data[0])
@@ -58,7 +58,7 @@ Discount.getDiscountShipAuto = (idUser, price, result) => {
             (${price} * dc.discount * 0.01) AS price2, 
             dc.* 
         FROM discount AS dc inner join discount_user as dsu
-        on dc.discount_id=dsu.dsc_id where user_id=${idUser} and  DATE(dc.expires) >= DATE('${day}')
+        on dc.discount_id=dsu.dsc_id where user_id=${idUser} and  DATE(dc.expires) >= DATE('${day}') and dc.minPrice<=${price}
     ) AS derived 
     ORDER BY result desc`, (err, data) => {
         if (err) console.log(err);
