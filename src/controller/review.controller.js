@@ -1,6 +1,7 @@
 const Review = require("../models/entity/review.entity");
 const { deleteResponseOfReview } = require('../middleware/review.Action');
-const { ReviewForAdmin } = require('../models/response/review.response')
+const { ReviewForAdmin } = require('../models/response/review.response');
+const Response = require("../models/entity/response.entity");
 class ReviewController {
     create_review = (req, res) => {
         req.body.account_id = req.user.id;
@@ -149,6 +150,14 @@ class ReviewController {
         deleteResponseOfReview(id);
         Review.delete(id, (data) => {
             res.json(data)
+        })
+    }
+    delete_responseAdmin = (req, res) => {
+
+        Response.delete(req.params.id, (data) => {
+            if (data.status == 200) res.status(200).json(data)
+            else res.status(400).json(data)
+
         })
     }
 }

@@ -36,4 +36,11 @@ Response.create = (data, result) => {
         else result({ response_id: kq.insertId, ...data })
     })
 }
+
+Response.delete = (id, result) => {
+    db.query(`DELETE FROM response WHERE response_id = ?`, id, (err, kq) => {
+        if (err) result({ status: 400, message: err })
+        else result({ status: 200, message: "success" })
+    })
+}
 module.exports = Response;
